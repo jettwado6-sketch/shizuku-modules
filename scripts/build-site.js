@@ -614,7 +614,6 @@ function render(data) {
   <p class="tagline">Mega collection of apps using Shizuku — updated daily.</p>
   <div class="stats">
     <span class="stat"><b id="stat-total">0</b> apps</span>
-    <span class="stat"><b id="stat-awesome">0</b> from awesome-shizuku</span>
     <span class="stat"><b id="stat-new">0</b> new this week</span>
     <span class="stat">Updated <b id="stat-updated">—</b></span>
   </div>
@@ -749,7 +748,6 @@ function render(data) {
   applyParams();
 
   document.getElementById("stat-total").textContent = fmtFull.format(DATA.total);
-  document.getElementById("stat-awesome").textContent = fmtFull.format((DATA.awesome || 0));
   document.getElementById("stat-new").textContent = fmtFull.format(DATA.fresh);
   const gen = new Date(DATA.generated_at);
   document.getElementById("stat-updated").textContent = gen.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
