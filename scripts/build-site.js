@@ -643,7 +643,7 @@ function render(data) {
     <input id="search" type="search" placeholder="Search apps, topics, languages…" autocomplete="off">
   </div>
   <select id="sort" aria-label="Sort order">
-    <option value="updated">Sort: Updated</option>
+    <option value="updated">Sort: Recently updated</option>
     <option value="stars">Sort: Most stars</option>
     <option value="name">Sort: Name A–Z</option>
     <option value="released">Sort: Latest release</option>
@@ -1323,8 +1323,8 @@ function render(data) {
     list = list.slice().sort((a, b) => {
       if (sortBy === "name") return a.full_name.localeCompare(b.full_name);
       if (sortBy === "updated") {
-        const ca = a.pushed_at || a.updated_at || "";
-        const cb = b.pushed_at || b.updated_at || "";
+        const ca = lastActivity(a) || "";
+        const cb = lastActivity(b) || "";
         return cb.localeCompare(ca);
       }
       if (sortBy === "released") {
