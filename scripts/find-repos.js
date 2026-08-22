@@ -7,10 +7,11 @@
  * Usage:
  *   node scripts/find-repos.js [--max-pages N] [--delay MS] [--queries "q1|q2"]
  *                               [--ignore-ttl-days N] [--release-ttl-days N]
- *                               [--no-awesome]
+ *                               [--stale-days N] [--no-awesome]
  *
  * Two discovery sources:
- *   1. GitHub search + Shizuku dependency verification
+ *   1. GitHub search + Shizuku dependency verification (big queries are
+ *      auto-sliced by star ranges so nothing past the 1000-result cap is missed)
  *   2. awesome-shizuku curated lists (main README + CLOSED_SOURCE, ARCHIVED, RISH pages)
  *
  * Set GITHUB_TOKEN for higher rate limits.
@@ -35,10 +36,25 @@ const DEFAULT_QUERIES = [
   "rikka.shizuku in:readme",
 ];
 const DEFAULT_MAX_PAGES = 10;
-const DEFAULT_DELAY_MS = 1500;
+const DEFAULT_DELAY_MS = 2000;
 const DEFAULT_IGNORE_TTL_DAYS = 30;
 const DEFAULT_RELEASE_TTL_DAYS = 7;
+const DEFAULT_STALE_DAYS = 90;
 const CONCURRENCY = 24;
+
+// GitHub search caps results at 1000 per query. When a query reports a larger
+// total, we slice it into disjoint star ranges so every repo is reachable.
+const MAX_SEARCH_RESULTS = 1000;
+const STAR_BUCKETS = [
+  "stars:>=1000",
+  "stars:500..999",
+  "stars:100..499",
+  "stars:50..99",
+  "stars:20..49",
+  "stars:10..19",
+  "stars:5..9",
+  "stars:0..4",
+];
 
 // ---- awesome-shizuku sources ----
 const AWESOME_OWNER = "timschneeb";
@@ -71,6 +87,7 @@ function parseArgs(argv) {
     delay: DEFAULT_DELAY_MS,
     ignoreTtlDays: DEFAULT_IGNORE_TTL_DAYS,
     releaseTtlDays: DEFAULT_RELEASE_TTL_DAYS,
+    staleDays: DEFAULT_STALE_DAYS,
     noAwesome: false,
   };
   for (let i = 2; i < argv.length; i++) {
@@ -89,6 +106,9 @@ function parseArgs(argv) {
         break;
       case "--release-ttl-days":
         args.releaseTtlDays = parseInt(argv[++i], 10) || DEFAULT_RELEASE_TTL_DAYS;
+        break;
+      case "--stale-days":
+        args.staleDays = parseInt(argv[++i], 10) || DEFAULT_STALE_DAYS;
         break;
       case "--no-awesome":
         args.noAwesome = true;
@@ -145,48 +165,103 @@ function pickRepo(item) {
   };
 }
 
+// Fetch one page of search results; returns { items, total, ok, rateLimited }.
+async function searchPage(query, page, delay) {
+  const url = new URL("https://api.github.com/search/repositories");
+  url.searchParams.set("q", withNoForks(query));
+  url.searchParams.set("per_page", "100");
+  url.searchParams.set("page", String(page));
+  url.searchParams.set("sort", "stars");
+  url.searchParams.set("order", "desc");
+  if (delay > 0 && page > 1) await sleep(delay);
+  const res = await githubGet(url);
+  if (!res) return { items: [], total: 0, ok: false, rateLimited: false };
+  if (!res.ok) return { items: [], total: 0, ok: false, rateLimited: !!res.rateLimited };
+  const body = await res.json();
+  return {
+    items: Array.isArray(body.items) ? body.items : [],
+    total: body.total_count ?? 0,
+    ok: true,
+    rateLimited: false,
+  };
+}
+
 async function searchRepositories(query, maxPages, delay) {
   const found = [];
-  for (let page = 1; page <= maxPages; page++) {
-    const url = new URL("https://api.github.com/search/repositories");
-    url.searchParams.set("q", withNoForks(query));
-    url.searchParams.set("per_page", "100");
-    url.searchParams.set("page", String(page));
-    url.searchParams.set("sort", "stars");
-    url.searchParams.set("order", "desc");
-    const res = await githubGet(url);
-    if (!res) break;
-    if (!res.ok) {
-      if (res.rateLimited) return { found, stopped: true };
-      break;
+  const first = await searchPage(query, 1, 0);
+  if (!first.ok) return { found, stopped: first.rateLimited };
+  found.push(...first.items);
+
+  // Queries whose total exceeds GitHub's 1000-result cap are sliced into
+  // disjoint star ranges so nothing past the cap is silently missed.
+  if (first.total > MAX_SEARCH_RESULTS) {
+    console.log(`  [${query}] ${first.total} matches — slicing by stars to beat the 1000-result cap`);
+    for (const bucket of STAR_BUCKETS) {
+      const sliced = await searchPage(`${query} ${bucket}`, 1, 0);
+      if (!sliced.ok) return { found, stopped: sliced.rateLimited };
+      found.push(...sliced.items);
+      console.log(`    [${query} ${bucket}] page 1: ${sliced.items.length} repos (${sliced.total} in bucket)`);
+      for (let page = 2; page <= maxPages; page++) {
+        const next = await searchPage(`${query} ${bucket}`, page, delay);
+        if (!next.ok) return { found, stopped: next.rateLimited };
+        if (next.items.length === 0) break;
+        found.push(...next.items);
+        if (next.items.length < 100) break;
+      }
     }
-    const body = await res.json();
-    const items = Array.isArray(body.items) ? body.items : [];
-    if (items.length === 0) break;
-    found.push(...items);
-    const total = body.total_count ?? 0;
-    console.log(`  [${query}] page ${page}: ${items.length} repos (${total} match in total)`);
-    if (found.length >= total || items.length < 100) break;
-    if (delay > 0) await sleep(delay);
+    return { found, stopped: false };
+  }
+
+  console.log(`  [${query}] page 1: ${first.items.length} repos (${first.total} match in total)`);
+  for (let page = 2; page <= maxPages; page++) {
+    const next = await searchPage(query, page, delay);
+    if (!next.ok) return { found, stopped: next.rateLimited };
+    if (next.items.length === 0) break;
+    found.push(...next.items);
+    console.log(`  [${query}] page ${page}: ${next.items.length} repos`);
+    if (next.items.length < 100) break;
   }
   return { found, stopped: false };
 }
 
-async function githubGet(url) {
-  try {
-    const res = await fetch(url, { headers: requestHeaders(), signal: AbortSignal.timeout(20000) });
-    if (!res.ok && (res.status === 403 || res.status === 429)) {
-      const remaining = res.headers.get("x-ratelimit-remaining");
-      if (!quietWarnings) {
-        console.warn(`  Rate limited (HTTP ${res.status}), remaining: ${remaining ?? "?"}`);
+async function githubGet(url, opts = {}) {
+  const maxAttempts = opts.maxAttempts ?? 4;
+  let attempt = 0;
+  while (attempt < maxAttempts) {
+    attempt++;
+    try {
+      const res = await fetch(url, { headers: requestHeaders(), signal: AbortSignal.timeout(20000) });
+      if (res.ok) return res;
+      if (res.status === 403 || res.status === 429) {
+        const remaining = res.headers.get("x-ratelimit-remaining");
+        const retryAfter = res.headers.get("retry-after");
+        if (attempt < maxAttempts) {
+          // Back off on Retry-After if GitHub gave one, else exponential backoff.
+          const waitMs = retryAfter
+            ? Math.min(parseInt(retryAfter, 10) * 1000 || 5000, 30000)
+            : Math.min(2000 * 2 ** (attempt - 1), 30000);
+          if (!quietWarnings) {
+            console.warn(`  Rate limited (HTTP ${res.status}), remaining: ${remaining ?? "?"} — retrying in ${Math.round(waitMs / 1000)}s (${attempt}/${maxAttempts})`);
+          }
+          await sleep(waitMs);
+          continue;
+        }
+        if (!quietWarnings) {
+          console.warn(`  Rate limited (HTTP ${res.status}), remaining: ${remaining ?? "?"}`);
+        }
+        return { ok: false, rateLimited: remaining === "0" };
       }
-      return { ok: false, rateLimited: remaining === "0" };
+      return res;
+    } catch (err) {
+      if (attempt < maxAttempts) {
+        await sleep(1000 * attempt);
+        continue;
+      }
+      console.warn(`  Network error: ${err.message}`);
+      return null;
     }
-    return res;
-  } catch (err) {
-    console.warn(`  Network error: ${err.message}`);
-    return null;
   }
+  return null;
 }
 
 function withNoForks(query) {
@@ -261,35 +336,38 @@ function guessCategory(repo) {
     repo.full_name,
   ].join(" ").toLowerCase();
 
-  const CATEGORY_KEYWORDS = {
-    "Customization": ["theme", "customiz", "wallpaper", "icon", "launcher", "dark mode", "accent", "color", "material", "font", "animation"],
-    "Development utilities": ["debug", "developer", "adb", "log", "terminal", "shell", "inspector", "monitor", "test"],
-    "File management": ["file manager", "file explorer", "file access", "storage", "sd card", "root explorer"],
-    "Automation": ["automat", "tasker", "macro", "script", "auto", "workflow"],
-    "Privacy": ["privacy", "permission", "appops", "tracker", "block", "firewall", "vpn"],
-    "Display management": ["display", "refresh rate", "screen", "brightness", "hz", "rotation", "resolution"],
-    "Power management": ["battery", "charging", "power", "wake", "suspend", "doze"],
-    "Audio": ["audio", "volume", "sound", "music", "equalizer", "dsp", "microphone"],
-    "Installer & app stores": ["install", "apk", "store", "updater", "package installer", "split apk"],
-    "Input methods": ["keyboard", "keymap", "input", "gesture", "touch", "button remap"],
-    "Network": ["wifi", "bluetooth", "nfc", "dns", "network", "proxy", "5g", "lte"],
-    "Entertainment": ["media", "video", "stream", "manga", "anime", "game", "player"],
-    "Productivity": ["productiv", "note", "todo", "calendar", "timer", "focus"],
-    "Communication": ["chat", "message", "call", "sms", "discord", "telegram"],
-    "Quick settings": ["quick setting", "qs tile", "tile", "toggle"],
-    "Software management": ["app manager", "debloat", "freeze", "uninstall", "disable", "backup"],
-    "Task manager": ["task manager", "process", "kill", "memory", "ram"],
-    "Games": ["game", "gaming", "controller", "emulator", "gacha"],
-    "Vendor-specific": ["pixel", "samsung", "xiaomi", "oneui", "miui", "oppo", "vivo", "oneplus"],
-    "Device Owner (DPM)": ["device owner", "dpm", "work profile", "managed"],
-    "AI agents": ["ai", "agent", "llm", "mcp", "chatgpt", "llama"],
-    "Android TV": ["android tv", "tv app", "leanback", "fire tv"],
-    "Terminals": ["terminal", "termux", "console", "shell emulator"],
-    "Patching": ["patch", "mod", "revanced", "patcher", "magisk"],
-  };
+  // Keyword -> category, ordered most-specific first. Short, ambiguous words
+  // ("ai", "log", "tv") use word-boundary matching so "available" doesn't
+  // match "ai" and "logcat" doesn't match "log" before "debug" does.
+  const CATEGORY_KEYWORDS = [
+    ["Device Owner (DPM)", ["device owner", "dpm", "work profile"]],
+    ["Patching", ["revanced", "patcher", "patch", "magisk"]],
+    ["AI agents", ["\bai\b", "\bllm\b", "\bmcp\b", "chatgpt", "\bllama\b", "ai agent"]],
+    ["Automation", ["automat", "tasker", "macro", "workflow", "\bscript\b"]],
+    ["Privacy", ["privacy", "permission", "appops", "tracker", "firewall", "\bvpn\b"]],
+    ["Software management", ["app manager", "debloat", "freeze", "uninstall", "disable", "backup"]],
+    ["Installer & app stores", ["installer", "\bapk\b", "app store", "updater", "package installer", "split apk"]],
+    ["Task manager", ["task manager", "\bprocess\b", "\bkill\b", "\bmemory\b", "\bram\b"]],
+    ["Power management", ["battery", "charging", "\bpower\b", "wake", "suspend", "\bdoze\b"]],
+    ["File management", ["file manager", "file explorer", "file access", "\bstorage\b", "sd card", "root explorer"]],
+    ["Network", ["\bwifi\b", "\bbluetooth\b", "\bnfc\b", "\bdns\b", "network", "\bproxy\b", "5g", "\blte\b"]],
+    ["Audio", ["\baudio\b", "\bvolume\b", "\bsound\b", "music", "equalizer", "\bdsp\b", "microphone"]],
+    ["Input methods", ["keyboard", "keymap", "\binput\b", "gesture", "\btouch\b", "button remap"]],
+    ["Display management", ["display", "refresh rate", "\bscreen\b", "brightness", "\bhz\b", "rotation", "resolution"]],
+    ["Quick settings", ["quick setting", "qs tile", "\btile\b", "toggle"]],
+    ["Terminals", ["terminal", "termux", "console", "shell emulator"]],
+    ["Development utilities", ["debug", "developer", "\badb\b", "\blog\b", "\bshell\b", "inspector", "monitor", "\btest\b"]],
+    ["Entertainment", ["\bmedia\b", "\bvideo\b", "\bstream\b", "manga", "anime", "\bgame\b", "\bplayer\b"]],
+    ["Productivity", ["productiv", "\bnote\b", "\btodo\b", "\bcalendar\b", "\btimer\b", "\bfocus\b"]],
+    ["Communication", ["\bchat\b", "\bmessage\b", "\bcall\b", "\bsms\b", "discord", "telegram"]],
+    ["Games", ["\bgaming\b", "controller", "emulator", "gacha"]],
+    ["Customization", ["theme", "customiz", "wallpaper", "\bicon\b", "launcher", "dark mode", "\baccent\b", "\bcolor\b", "material", "\bfont\b", "animation"]],
+    ["Vendor-specific", ["pixel", "samsung", "xiaomi", "oneui", "miui", "oppo", "vivo", "oneplus"]],
+    ["Android TV", ["android tv", "\btv\b", "leanback", "fire tv"]],
+  ];
 
-  for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
-    if (keywords.some((kw) => text.includes(kw))) return cat;
+  for (const [cat, keywords] of CATEGORY_KEYWORDS) {
+    if (keywords.some((kw) => new RegExp(kw).test(text))) return cat;
   }
   return "Miscellaneous";
 }
@@ -442,13 +520,15 @@ async function main() {
   console.log(`Source 1: GitHub search (${args.queries.length} queries)...`);
   const candidates = [];
   let rateLimited = false;
-  for (const query of args.queries) {
+  // Run queries with a small pool — GitHub tolerates ~2-3 concurrent search
+  // streams with GITHUB_TOKEN (30 req/min), and it's much faster than serial.
+  const searchResults = await runPool(args.queries, 3, async (query) => {
     const { found, stopped } = await searchRepositories(query, args.maxPages, args.delay);
+    return { found, stopped };
+  });
+  for (const { found, stopped } of searchResults) {
     candidates.push(...found);
-    if (stopped) {
-      rateLimited = true;
-      break;
-    }
+    if (stopped) rateLimited = true;
   }
 
   // Re-add previously verified repos that weren't in this search
@@ -517,6 +597,8 @@ async function main() {
     const prev = existingByKey.get(repo.full_name.toLowerCase());
     let entry;
     if (repo._existing) {
+      // Re-added from a previous run because it wasn't in today's search —
+      // keep its old last_seen so it ages out if it has genuinely vanished.
       entry = { ...prev, verified: true };
     } else {
       entry = { ...pickRepo(repo), verified: true };
@@ -525,6 +607,7 @@ async function main() {
     entry.category = prev ? prev.category : guessCategory(repo);
     entry.source = entry.source || "search";
     entry.added_at = prev ? prev.added_at : nowIso;
+    entry.last_seen = repo._existing ? (prev && prev.last_seen) || nowIso : nowIso;
     if (prev && prev.release) entry.release = prev.release;
     if (prev && prev.release_fetched_at) entry.release_fetched_at = prev.release_fetched_at;
     if (verdict === "known") known++;
@@ -584,8 +667,19 @@ async function main() {
               ? prevAwesome.category
               : app.category || "Miscellaneous";
 
-          // Look up the repo via GitHub API
-          const repoData = await lookupGithubRepo(app.githubRepo);
+          // Reuse the previous entry's metadata when we already have a full
+          // record for this repo — avoids ~200 GitHub API calls per run.
+          const prevHasMetadata =
+            prevAwesome &&
+            prevAwesome.verified &&
+            (prevAwesome.created_at || prevAwesome.stargazers_count > 0 ||
+             (prevAwesome.topics && prevAwesome.topics.length > 0));
+          let repoData = null;
+          if (prevHasMetadata) {
+            repoData = prevAwesome;
+          } else {
+            repoData = await lookupGithubRepo(app.githubRepo);
+          }
           if (repoData && !repoData.message) {
             const entry = {
               ...pickRepo(repoData),
@@ -598,6 +692,7 @@ async function main() {
                 : [md.label],
               description: app.description || repoData.description || "",
               added_at: awesomeAddedAt,
+              last_seen: nowIso,
             };
             if (awesomeRelease) entry.release = awesomeRelease;
             if (awesomeReleaseFetchedAt) entry.release_fetched_at = awesomeReleaseFetchedAt;
@@ -628,6 +723,7 @@ async function main() {
                 ? [...new Set([...prevAwesome.awesome_source, md.label])]
                 : [md.label],
               added_at: awesomeAddedAt,
+              last_seen: nowIso,
             };
             if (awesomeRelease) entry.release = awesomeRelease;
             if (awesomeReleaseFetchedAt) entry.release_fetched_at = awesomeReleaseFetchedAt;
@@ -671,6 +767,7 @@ async function main() {
             license: app.license,
             isPaid: app.isPaid,
             added_at: prevStore ? prevStore.added_at : nowIso,
+            last_seen: nowIso,
           };
           final.set(key, entry);
           awesomeNew++;
@@ -684,6 +781,23 @@ async function main() {
   // ============================================================
   // Fetch release info
   // ============================================================
+  // Prune search-sourced apps that haven't been seen in a long time
+  // (renamed/deleted repos, or ones that dropped Shizuku support).
+  // awesome-listed apps are always kept — the curated list is the source of truth.
+  const staleMs = args.staleDays * 24 * 60 * 60 * 1000;
+  let prunedCount = 0;
+  for (const entry of [...final.values()]) {
+    if (entry.source && entry.source.startsWith("awesome")) continue;
+    if (!entry.last_seen) continue;
+    if (Date.now() - new Date(entry.last_seen).getTime() > staleMs) {
+      final.delete(entry.full_name.toLowerCase());
+      prunedCount++;
+    }
+  }
+  if (prunedCount > 0) {
+    console.log(`  Pruned ${prunedCount} stale search-sourced apps (not seen in ${args.staleDays}d)`);
+  }
+
   const sorted = [...final.values()].sort((a, b) => {
     const sa = typeof a.stargazers_count === "number" ? a.stargazers_count : -1;
     const sb = typeof b.stargazers_count === "number" ? b.stargazers_count : -1;
@@ -731,8 +845,22 @@ async function main() {
     if (!Array.isArray(list) || list.length === 0) {
       return { ...entry, release: null, release_fetched_at: fetchedAt };
     }
-    const isApkAsset = (a) => /\.apk$/i.test((a && a.name) || "");
-    const r = list.find((x) => (x.assets || []).some(isApkAsset)) || list[0];
+    const isApkAsset = (a) => /\.(apk|apkm|xapk|apks)$/i.test((a && a.name) || "");
+    const pickRelease = (releases) => {
+      // Prefer the newest stable release with an installable asset; fall back
+      // to a prerelease, then any release, then none.
+      const withApk = releases.filter((x) => (x.assets || []).some(isApkAsset));
+      return (
+        withApk.find((x) => !x.prerelease) ||
+        withApk.find((x) => x.prerelease) ||
+        releases[0] ||
+        null
+      );
+    };
+    const r = pickRelease(list);
+    if (!r) {
+      return { ...entry, release: null, release_fetched_at: fetchedAt };
+    }
     const apk = (r.assets || []).find(isApkAsset);
     const release = {
       tag: r.tag_name || "",
