@@ -511,7 +511,12 @@ function render(data) {
     <option value="search">GitHub search</option>
     <option value="awesome">awesome-shizuku</option>
   </select>
-
+  <label class="check" title="Only show apps that publish an APK in their GitHub releases">
+    <input id="apk-only" type="checkbox" checked> Only with APK
+  </label>
+  <label class="check" title="Show only apps you have starred">
+    <input id="fav-only" type="checkbox"> ★ Favorites
+  </label>
 
   <span id="count"></span>
 </div>
@@ -556,6 +561,8 @@ function render(data) {
     sort: document.getElementById("sort"),
     category: document.getElementById("category-filter"),
     source: document.getElementById("source-filter"),
+    apk: document.getElementById("apk-only"),
+    favOnly: document.getElementById("fav-only"),
   };
 
   // Populate the category dropdown from the data.
@@ -566,6 +573,22 @@ function render(data) {
     opt.textContent = c;
     el.category.appendChild(opt);
   });
+
+  // Shareable URL state: ?q=...&cat=...&src=...&sort=...&apk=0|1&fav=0|1
+  const params = new URLSearchParams(location.search);
+  const applyParams = () => {
+    if (params.has("q")) el.search.value = params.get("q");
+    if (params.has("cat")) el.category.value = params.get("cat");
+    if (params.has("src") && [...el.source.options].some((o) => o.value === params.get("src"))) {
+      el.source.value = params.get("src");
+    }
+    if (params.has("sort") && [...el.sort.options].some((o) => o.value === params.get("sort"))) {
+      el.sort.value = params.get("sort");
+    }
+    if (el.apk && params.get("apk") === "0") el.apk.checked = false;
+    if (el.favOnly && params.get("fav") === "1") el.favOnly.checked = true;
+  };
+  applyParams();
 
   document.getElementById("stat-total").textContent = fmtFull.format(DATA.total);
   document.getElementById("stat-awesome").textContent = fmtFull.format((DATA.awesome || 0));
@@ -816,6 +839,8 @@ function render(data) {
       if (catFilter !== "all" && (r.category || "Miscellaneous") !== catFilter) return false;
       if (srcFilter === "awesome" && !(r.source && r.source.startsWith("awesome"))) return false;
       if (srcFilter === "search" && r.source && r.source.startsWith("awesome")) return false;
+      if (el.apk && el.apk.checked && !(r.release && r.release.apk_url)) return false;
+      if (el.favOnly && el.favOnly.checked && !favorites.has(r.full_name)) return false;
       if (!q) return true;
       return (
         r.full_name.toLowerCase().includes(q) ||
@@ -847,17 +872,47 @@ function render(data) {
     return list;
   }
 
+  // Favorites persist in localStorage keyed by repo full_name.
+  const FAV_KEY = "shizuku-favs";
+  let favorites = new Set();
+  try {
+    favorites = new Set(JSON.parse(localStorage.getItem(FAV_KEY) || "[]"));
+  } catch {}
+  const saveFavs = () => {
+    try { localStorage.setItem(FAV_KEY, JSON.stringify([...favorites])); } catch {}
+  };
+  const toggleFav = (name, btn) => {
+    if (favorites.has(name)) favorites.delete(name);
+    else favorites.add(name);
+    saveFavs();
+    if (btn) btn.classList.toggle("on", favorites.has(name));
+    render();
+  };
+
   function render() {
     const list = visible(DATA.repos);
     el.grid.replaceChildren(...list.map(card));
     el.empty.classList.toggle("hidden", list.length !== 0);
     el.count.textContent = list.length + " of " + DATA.repos.length + " apps";
+    // Keep the URL shareable: mirrors the current filters.
+    const p = new URLSearchParams();
+    if (el.search.value) p.set("q", el.search.value);
+    if (el.category.value !== "all") p.set("cat", el.category.value);
+    if (el.source.value !== "all") p.set("src", el.source.value);
+    if (el.sort.value !== "updated") p.set("sort", el.sort.value);
+    if (!el.apk.checked) p.set("apk", "0");
+    if (el.favOnly.checked) p.set("fav", "1");
+    const qs = p.toString();
+    history.replaceState(null, "", qs ? "?" + qs : location.pathname);
   }
 
   el.search.addEventListener("input", render);
   el.sort.addEventListener("change", render);
   el.category.addEventListener("change", render);
   el.source.addEventListener("change", render);
+  el.apk.addEventListener("change", render);
+  el.favOnly.addEventListener("change", render);
+  window.addEventListener("popstate", render);
   render();
 })();
 </script>
