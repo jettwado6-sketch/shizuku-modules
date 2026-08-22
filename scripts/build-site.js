@@ -184,7 +184,7 @@ function render(data) {
   <div class="logo"><span class="grad">Shizuku Apps Directory</span></div>
   <p class="tagline">Curated collection of apps using Shizuku &mdash; updated daily.</p>
   <div class="stats">
-    <span class="stat"><b id="stat-total">0</b> apps with APK</span>
+    <span class="stat"><b id="stat-total">0</b> apps</span>
     <span class="stat"><b id="stat-awesome">0</b> from awesome-shizuku</span>
     <span class="stat"><b id="stat-new">0</b> new this week</span>
     <span class="stat">Updated <b id="stat-updated">&mdash;</b></span>
@@ -245,8 +245,7 @@ function render(data) {
     sort: document.getElementById("sort"), category: document.getElementById("category-filter"),
     source: document.getElementById("source-filter"),
   };
-  const apkCount = DATA.repos.filter((r) => r.release && r.release.apk_url).length;
-  document.getElementById("stat-total").textContent = fmtFull.format(apkCount);
+  document.getElementById("stat-total").textContent = fmtFull.format(DATA.total);
   document.getElementById("stat-awesome").textContent = fmtFull.format(DATA.awesome || 0);
   document.getElementById("stat-new").textContent = fmtFull.format(DATA.fresh);
   const gen = new Date(DATA.generated_at);
@@ -326,7 +325,6 @@ function render(data) {
     const catFilter = el.category.value;
     const srcFilter = el.source.value;
     let list = repos.filter((r) => {
-      if (!(r.release && r.release.apk_url)) return false;
       if (catFilter !== "all" && (r.category || "Miscellaneous") !== catFilter) return false;
       if (srcFilter === "awesome" && !(r.source && r.source.startsWith("awesome"))) return false;
       if (srcFilter === "search" && r.source && r.source.startsWith("awesome")) return false;
@@ -353,7 +351,7 @@ function render(data) {
     const list = visible(DATA.repos);
     el.grid.replaceChildren(...list.map(card));
     el.empty.classList.toggle("hidden", list.length !== 0);
-    el.count.textContent = list.length + " apps with APK";
+    el.count.textContent = list.length + " of " + DATA.repos.length + " apps";
   }
   el.search.addEventListener("input", render);
   el.sort.addEventListener("change", render);
