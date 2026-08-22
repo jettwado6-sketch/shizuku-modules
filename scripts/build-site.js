@@ -316,6 +316,13 @@ function render(data) {
     transition: background .15s, border-color .15s;
   }
   .release-chip:hover { background: #0ea5e9; border-color: #0ea5e9; }
+  .release-chip.ghost {
+    background: transparent; color: var(--muted); border-color: var(--border);
+    font-weight: 500;
+  }
+  .release-chip.ghost:hover { background: var(--card-hover); color: var(--text); border-color: var(--accent); }
+  .release-chip.ghost.lic { cursor: default; }
+  .release-chip.ghost.lic:hover { background: transparent; color: var(--muted); border-color: var(--border); }
   .empty {
     text-align: center; color: var(--muted); padding: 60px 0;
     font-size: 15px;
@@ -841,26 +848,46 @@ function render(data) {
     foot.append(updated);
 
     let dlRow = null;
+    const dlLinks = [];
     if (release.tag) {
-      dlRow = document.createElement("div");
-      dlRow.className = "dl-row";
       const rel = document.createElement("a");
       rel.className = "release-chip" + (release.prerelease ? " prerelease" : "");
       rel.href = release.apk_url || release.html_url || "#";
       rel.target = "_blank";
       rel.rel = "noopener";
-      rel.textContent = release.apk_url ? "Download" : "View release";
+      rel.textContent = release.apk_url ? "Download APK" : "View release";
       rel.title =
         "Release " + (release.name || release.tag) +
         (release.published_at
           ? " \u00b7 " + new Date(release.published_at).toLocaleDateString()
           : "") +
         (release.apk_url ? " \u00b7 direct APK download" : "");
-      dlRow.append(rel);
+      dlLinks.push(rel);
+    }
+    if (repo.homepage) {
+      const home = document.createElement("a");
+      home.className = "release-chip ghost";
+      home.href = repo.homepage;
+      home.target = "_blank";
+      home.rel = "noopener";
+      home.textContent = "Homepage";
+      dlLinks.push(home);
+    }
+    if (repo.license) {
+      const lic = document.createElement("span");
+      lic.className = "release-chip ghost lic";
+      lic.textContent = repo.license;
+      lic.title = "License";
+      dlLinks.push(lic);
+    }
+    if (dlLinks.length) {
+      dlRow = document.createElement("div");
+      dlRow.className = "dl-row";
+      dlRow.append(...dlLinks);
     }
 
     c.append(foot);
-    if (release.tag) c.append(dlRow);
+    if (dlRow) c.append(dlRow);
     return c;
   }
 
