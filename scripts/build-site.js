@@ -252,11 +252,32 @@ function render(data) {
     color: #fff; box-shadow: 0 2px 10px rgba(92, 107, 192, .35);
   }
   .check {
-    display: inline-flex; align-items: center; gap: 8px;
-    color: var(--muted); font-size: 14px; cursor: pointer; user-select: none;
-    padding: 10px 6px;
+    display: inline-flex; align-items: center; gap: 9px;
+    color: var(--muted); font-size: 13.5px; font-weight: 600;
+    cursor: pointer; user-select: none; padding: 9px 13px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; transition: border-color .15s, color .15s, background .15s;
   }
-  .check input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+  .check:hover { border-color: var(--accent); color: var(--text); }
+  .check:has(input:checked) { border-color: var(--accent); color: var(--text); }
+  .check input {
+    appearance: none; -webkit-appearance: none;
+    width: 16px; height: 16px; margin: 0; flex: none;
+    border: 2px solid var(--border); border-radius: 5px;
+    background: var(--bg-soft); cursor: pointer; position: relative;
+    transition: background .15s, border-color .15s;
+  }
+  .check input:hover { border-color: var(--accent-2); }
+  .check input:checked {
+    background: linear-gradient(135deg, var(--accent), var(--accent-3));
+    border-color: transparent;
+  }
+  .check input:checked::after {
+    content: ""; position: absolute; left: 4px; top: 1px;
+    width: 4px; height: 8px; border: solid #fff;
+    border-width: 0 2px 2px 0; transform: rotate(45deg);
+  }
+  .check input:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
   .load-more {
     display: block; margin: 28px auto; padding: 12px 34px;
     background: var(--card); color: var(--text); border: 1px solid var(--border);
@@ -347,7 +368,7 @@ function render(data) {
     background: rgba(125, 211, 252, .1); border: 1px solid rgba(125, 211, 252, .22);
     padding: 1px 7px; border-radius: 999px;
   }
-  .dl-row { display: flex; }
+  .dl-row { display: flex; gap: 8px; }
   .release-chip {
     display: inline-flex; align-items: center; justify-content: center; gap: 6px;
     width: 100%;
@@ -551,6 +572,7 @@ function render(data) {
     cursor: pointer; font-family: inherit; transition: background .15s;
   }
   .modal-close:hover { background: rgba(255, 255, 255, .14); }
+  .modal.hidden { display: none; }
   #modal-body { overflow-y: auto; padding: 26px 28px 30px; }
   .m-head { display: flex; gap: 14px; align-items: flex-start; padding-right: 40px; }
   .m-head img { width: 56px; height: 56px; border-radius: 12px; flex: none; }
@@ -636,7 +658,7 @@ function render(data) {
     <input id="apk-only" type="checkbox" checked> Only with APK
   </label>
   <label class="check" title="Show only apps you have starred">
-    <input id="fav-only" type="checkbox"> ★ Favorites
+    <input id="fav-only" type="checkbox"> Favorites
   </label>
 
   <span id="count"></span>
