@@ -534,11 +534,12 @@ function render(data) {
     count: document.getElementById("count"),
     search: document.getElementById("search"),
     sort: document.getElementById("sort"),
-    api: document.getElementById("api-filter"),
+    category: document.getElementById("category-filter"),
+    source: document.getElementById("source-filter"),
   };
 
   document.getElementById("stat-total").textContent = fmtFull.format(DATA.total);
-  document.getElementById("stat-official").textContent = fmtFull.format(DATA.official);
+  document.getElementById("stat-awesome").textContent = fmtFull.format((DATA.awesome || 0));
   document.getElementById("stat-new").textContent = fmtFull.format(DATA.fresh);
   const gen = new Date(DATA.generated_at);
   document.getElementById("stat-updated").textContent = gen.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
@@ -804,15 +805,12 @@ function render(data) {
   function visible(repos) {
     const q = el.search.value.trim().toLowerCase();
     let list = repos.filter((r) => {
-      if (archFilter === "active" && r.archived) return false;
-      if (archFilter === "archived" && !r.archived) return false;
-      if (typeFilter === "official" && !isOfficial(r)) return false;
-      if (typeFilter === "unofficial" && isOfficial(r)) return false;
-      const api = apiInfo(r);
-      const eff = api.target !== null ? api.target : api.min;
-      if (el.api.value === "102" && (eff === null || eff < 102)) return false;
-      if (el.api.value === "93" && (eff === null || eff < 93)) return false;
-      if (el.api.value === "classic" && eff !== null) return false;
+
+      const catFilter = el.category ? el.category.value : "all";
+      const srcFilter = el.source ? el.source.value : "all";
+      if (catFilter !== "all" && (r.category || "Miscellaneous") !== catFilter) return false;
+      if (srcFilter === "awesome" && !(r.source && r.source.startsWith("awesome"))) return false;
+      if (srcFilter === "search" && r.source && r.source.startsWith("awesome")) return false;
       if (!q) return true;
       return (
         r.full_name.toLowerCase().includes(q) ||
@@ -850,34 +848,6 @@ function render(data) {
     el.empty.classList.toggle("hidden", list.length !== 0);
     el.count.textContent = list.length + " of " + DATA.repos.length + " modules";
   }
-
-  let typeFilter = "all";
-  const typeButtons = Array.from(document.querySelectorAll("#type-filter button"));
-  typeButtons.forEach((b) =>
-    b.addEventListener("click", () => {
-      typeFilter = b.dataset.type;
-      typeButtons.forEach((x) => {
-        const on = x === b;
-        x.classList.toggle("active", on);
-        x.setAttribute("aria-pressed", String(on));
-      });
-      render();
-    })
-  );
-
-  let archFilter = "all";
-  const archButtons = Array.from(document.querySelectorAll("#archived-filter button"));
-  archButtons.forEach((b) =>
-    b.addEventListener("click", () => {
-      archFilter = b.dataset.arch;
-      archButtons.forEach((x) => {
-        const on = x === b;
-        x.classList.toggle("active", on);
-        x.setAttribute("aria-pressed", String(on));
-      });
-      render();
-    })
-  );
 
   el.search.addEventListener("input", render);
   el.sort.addEventListener("change", render);
