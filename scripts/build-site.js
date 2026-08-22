@@ -851,7 +851,9 @@ function render(data) {
 
   el.search.addEventListener("input", render);
   el.sort.addEventListener("change", render);
-  el.api.addEventListener("change", render);  render();
+  el.category.addEventListener("change", render);
+  el.source.addEventListener("change", render);
+  render();
 })();
 </script>
 </body>
