@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Shizuku Apps Directory — New Apps</title>
+  <link href="https://rushiranpise.github.io/shizuku-modules/"/>
+  <link href="https://rushiranpise.github.io/shizuku-modules/feed.xml" rel="self"/>
+  <updated>2026-08-22T15:47:29.844Z</updated>
+  <id>https://rushiranpise.github.io/shizuku-modules/</id>
+  <subtitle>Newly discovered Android apps that use Shizuku</subtitle>
+    <entry>
+      <title>mihonapp/mihon</title>
+      <link href="https://github.com/mihonapp/mihon"/>
+      <id>https://github.com/mihonapp/mihon</id>
+      <updated>2026-08-22T02:22:46.000Z</updated>
+      <summary>Manga reader using Shizuku plugin management. Independent successor of Tachiyomi.</summary>
+    </entry>
+    <entry>
+      <title>ImranR98/Obtainium</title>
+      <link href="https://github.com/ImranR98/Obtainium"/>
+      <id>https://github.com/ImranR98/Obtainium</id>
+      <updated>2026-08-10T02:55:19.000Z</updated>
+      <summary>Get Android App Updates Directly From the Source</summary>
+    </entry>
+    <entry>
+      <title>aniyomiorg/aniyomi</title>
+      <link href="https://github.com/aniyomiorg/aniyomi"/>
+      <id>https://github.com/aniyomiorg/aniyomi</id>
+      <updated>2026-08-19T14:51:58.000Z</updated>
+      <summary>Tachiyomi fork with anime support and plugin management using Shizuku.</summary>
+    </entry>
+    <entry>
+      <title>AAswordman/Operit</title>
+      <link href="https://github.com/AAswordman/Operit"/>
+      <id>https://github.com/AAswordman/Operit</id>
+      <updated>2026-08-22T09:58:48.000Z</updated>
+      <summary>The most powerful AI agent and AI chat software on Android. Can run commands using Shizuku</summary>
+    </entry>
+    <entry>
+      <title>LibChecker/LibChecker</title>
+      <link href="https://github.com/LibChecker/LibChecker"/>
+      <id>https://github.com/LibChecker/LibChecker</id>
+      <updated>2026-08-18T09:18:47.000Z</updated>
+      <summary>An app to view libraries used in apps on your device. Uses Shizuku to determine the installation source of other apps.</summary>
+    </entry>
+    <entry>
+      <title>SuperMonster003/AutoJs6</title>
+      <link href="https://github.com/SuperMonster003/AutoJs6"/>
+      <id>https://github.com/SuperMonster003/AutoJs6</id>
+      <updated>2026-03-16T14:48:05.000Z</updated>
+      <summary>JavaScript-based automation tool</summary>
+    </entry>
+    <entry>
+      <title>wxxsfxyzm/InstallerX-Revived</title>
+      <link href="https://github.com/wxxsfxyzm/InstallerX-Revived"/>
+      <id>https://github.com/wxxsfxyzm/InstallerX-Revived</id>
+      <updated>2026-08-22T04:14:24.000Z</updated>
+      <summary>Modern and functional Android app installer replacement</summary>
+    </entry>
+    <entry>
+      <title>KieronQuinn/TapTap</title>
+      <link href="https://github.com/KieronQuinn/TapTap"/>
+      <id>https://github.com/KieronQuinn/TapTap</id>
+      <updated>2024-10-26T21:49:00.000Z</updated>
+      <summary>Port of the double tap on the back of the device feature from Android 12 to any Android 7.0+ device</summary>
+    </entry>
+    <entry>
+      <title>iamr0s/Dhizuku</title>
+      <link href="https://github.com/iamr0s/Dhizuku"/>
+      <id>https://github.com/iamr0s/Dhizuku</id>
+      <updated>2026-08-19T18:50:58.000Z</updated>
+      <summary>Shizuku-inspired app that allows sharing DeviceOwner permissions to third-party apps</summary>
+    </entry>
+    <entry>
+      <title>JingMatrix/LSPatch</title>
+      <link href="https://github.com/JingMatrix/LSPatch"/>
+      <id>https://github.com/JingMatrix/LSPatch</id>
+      <updated>2026-08-22T08:17:55.000Z</updated>
+      <summary>A non-root Xposed framework extending from LSPosed</summary>
+    </entry>
+    <entry>
+      <title>KieronQuinn/Smartspacer</title>
+      <link href="https://github.com/KieronQuinn/Smartspacer"/>
+      <id>https://github.com/KieronQuinn/Smartspacer</id>
+      <updated>2026-08-08T17:29:12.000Z</updated>
+      <summary>Customizable widget, can upgrade the built-in 'At a glance' widget on Pixel devices using Shizuku</summary>
+    </entry>
+    <entry>
+      <title>zacharee/InstallWithOptions</title>
+      <link href="https://github.com/zacharee/InstallWithOptions"/>
+      <id>https://github.com/zacharee/InstallWithOptions</id>
+      <updated>2026-08-11T18:11:38.000Z</updated>
+      <summary>Simple-ish app using Shizuku to install APKs on-device with advanced options</summary>
+    </entry>
+    <entry>
+      <title>RookieEnough/Orion-Store</title>
+      <link href="https://github.com/RookieEnough/Orion-Store"/>
+      <id>https://github.com/RookieEnough/Orion-Store</id>
+      <updated>2026-08-17T17:01:05.000Z</updated>
+      <summary>App store for modded apps</summary>
+    </entry>
+    <entry>
+      <title>wgtunnel/android</title>
+      <link href="https://github.com/wgtunnel/android"/>
+      <id>https://github.com/wgtunnel/android</id>
+      <updated>2026-08-22T09:48:42.000Z</updated>
+      <summary>A FOSS Android client for WireGuard and AmneziaWG with auto-tunneling.</summary>
+    </entry>
+    <entry>
+      <title>shmykelsa/AAAD</title>
+      <link href="https://github.com/shmykelsa/AAAD"/>
+      <id>https://github.com/shmykelsa/AAAD</id>
+      <updated>2026-06-17T13:40:50.000Z</updated>
+      <summary>Downloads popular Android Auto 3rd party apps and installs on Android Auto</summary>
+    </entry>
+    <entry>
+      <title>KieronQuinn/AmbientMusicMod</title>
+      <link href="https://github.com/KieronQuinn/AmbientMusicMod"/>
+      <id>https://github.com/KieronQuinn/AmbientMusicMod</id>
+      <updated>2024-09-07T22:45:39.000Z</updated>
+      <summary>Port of Now Playing from Pixels to other Android devices</summary>
+    </entry>
+    <entry>
+      <title>RikkaApps/Shizuku-API</title>
+      <link href="https://github.com/RikkaApps/Shizuku-API"/>
+      <id>https://github.com/RikkaApps/Shizuku-API</id>
+      <updated>2025-05-29T19:12:40.000Z</updated>
+      <summary>Developer documentation for Shizuku and Sui, including examples</summary>
+    </entry>
+    <entry>
+      <title>legendsayantan/ShizuTools</title>
+      <link href="https://github.com/legendsayantan/ShizuTools"/>
+      <id>https://github.com/legendsayantan/ShizuTools</id>
+      <updated>2026-07-28T16:28:50.000Z</updated>
+      <summary>Contains some easy-to-use tools to go beyond the level of control allowed by Android System</summary>
+    </entry>
+    <entry>
+      <title>Mahmud0808/ColorBlendr</title>
+      <link href="https://github.com/Mahmud0808/ColorBlendr"/>
+      <id>https://github.com/Mahmud0808/ColorBlendr</id>
+      <updated>2026-08-17T07:52:52.000Z</updated>
+      <summary>An application to modify Material You colors of your device</summary>
+    </entry>
+    <entry>
+      <title>VegaBobo/DSU-Sideloader</title>
+      <link href="https://github.com/VegaBobo/DSU-Sideloader"/>
+      <id>https://github.com/VegaBobo/DSU-Sideloader</id>
+      <updated>2024-03-13T18:18:38.000Z</updated>
+      <summary>A simple app made to help users easily install GSIs via DSU's Android feature.</summary>
+    </entry>
+    <entry>
+      <title>DP-Hridayan/aShellYou</title>
+      <link href="https://github.com/DP-Hridayan/aShellYou"/>
+      <id>https://github.com/DP-Hridayan/aShellYou</id>
+      <updated>2026-08-22T00:53:06.000Z</updated>
+      <summary>Material You Redesign of aShell app.</summary>
+    </entry>
+    <entry>
+      <title>AhmetCanArslan/ShizuWall</title>
+      <link href="https://github.com/AhmetCanArslan/ShizuWall"/>
+      <id>https://github.com/AhmetCanArslan/ShizuWall</id>
+      <updated>2026-08-13T19:00:00.000Z</updated>
+      <summary>Open-source app firewall that doesn't depend on VPNs or root</summary>
+    </entry>
+    <entry>
+      <title>MMRLApp/MMRL</title>
+      <link href="https://github.com/MMRLApp/MMRL"/>
+      <id>https://github.com/MMRLApp/MMRL</id>
+      <updated>2026-08-18T18:43:16.000Z</updated>
+      <summary>Manage your Magisk module repository</summary>
+    </entry>
+    <entry>
+      <title>vvb2060/KeyAttestation</title>
+      <link href="https://github.com/vvb2060/KeyAttestation"/>
+      <id>https://github.com/vvb2060/KeyAttestation</id>
+      <updated>2025-09-30T14:57:21.000Z</updated>
+      <summary>Supports generating, saving, loading, parsing and verifying Android key and ID attestation data.</summary>
+    </entry>
+    <entry>
+      <title>LinkSheet/LinkSheet</title>
+      <link href="https://github.com/LinkSheet/LinkSheet"/>
+      <id>https://github.com/LinkSheet/LinkSheet</id>
+      <updated>2026-08-07T12:52:13.000Z</updated>
+      <summary>Restore the Android &lt;12 Url-App-Link-Chooser with Material3</summary>
+    </entry>
+    <entry>
+      <title>zacharee/Tweaker</title>
+      <link href="https://github.com/zacharee/Tweaker"/>
+      <id>https://github.com/zacharee/Tweaker</id>
+      <updated>2026-08-16T13:49:38.000Z</updated>
+      <summary>View and modify hidden settings on Android devices</summary>
+    </entry>
+    <entry>
+      <title>KieronQuinn/DarQ</title>
+      <link href="https://github.com/KieronQuinn/DarQ"/>
+      <id>https://github.com/KieronQuinn/DarQ</id>
+      <updated>2023-09-01T15:19:43.000Z</updated>
+      <summary>DarQ provides a per-app selectable force dark option for Android 10 and above</summary>
+    </entry>
+    <entry>
+      <title>lukeaschenbrenner/TxtNet-Browser</title>
+      <link href="https://github.com/lukeaschenbrenner/TxtNet-Browser"/>
+      <id>https://github.com/lukeaschenbrenner/TxtNet-Browser</id>
+      <updated>2026-04-08T03:07:41.000Z</updated>
+      <summary>An app that lets you browse the web over SMS</summary>
+    </entry>
+    <entry>
+      <title>BinTianqi/OwnDroid</title>
+      <link href="https://github.com/BinTianqi/OwnDroid"/>
+      <id>https://github.com/BinTianqi/OwnDroid</id>
+      <updated>2026-08-19T15:26:35.000Z</updated>
+      <summary>Manage your device with Device owner privileges</summary>
+    </entry>
+    <entry>
+      <title>kitsumed/ShizuCallRecorder</title>
+      <link href="https://github.com/kitsumed/ShizuCallRecorder"/>
+      <id>https://github.com/kitsumed/ShizuCallRecorder</id>
+      <updated>2026-08-19T20:01:14.000Z</updated>
+      <summary>ShizuCallRecorder empowers ADB through Shizuku to record phone calls on non-rooted device!</summary>
+    </entry>
+</feed>

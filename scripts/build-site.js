@@ -92,9 +92,50 @@ async function main() {
 
   fs.mkdirSync(SITE_DIR, { recursive: true });
   fs.writeFileSync(OUT_FILE, render(data));
+  fs.writeFileSync(path.join(SITE_DIR, "feed.xml"), renderFeed(data));
   console.log(
-    `Built ${OUT_FILE} (${repos.length} repos, ${freshCount} new this week, visitor stats: ${JSON.stringify(data.visitorStats)})`
+    `Built ${OUT_FILE} + feed.xml (${repos.length} repos, ${freshCount} new this week, visitor stats: ${JSON.stringify(data.visitorStats)})`
   );
+}
+
+function renderFeed(data) {
+  // Atom feed of the newest apps, so people can subscribe to new discoveries.
+  const siteUrl = "https://rushiranpise.github.io/shizuku-modules/";
+  const escapeXml = (s) =>
+    String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  const items = data.repos
+    .filter((r) => r.added_at)
+    .sort((a, b) => (b.added_at || "").localeCompare(a.added_at || ""))
+    .slice(0, 30)
+    .map((r) => {
+      const title = (r.full_name || r.html_url || "").replace(/_store_/g, "");
+      const link = r.html_url || siteUrl;
+      const updated = r.pushed_at || r.added_at;
+      const desc = escapeXml(r.description || "").slice(0, 300);
+      return `    <entry>
+      <title>${escapeXml(title)}</title>
+      <link href="${escapeXml(link)}"/>
+      <id>${escapeXml(link)}</id>
+      <updated>${new Date(updated).toISOString()}</updated>
+      <summary>${desc}</summary>
+    </entry>`;
+    })
+    .join("\n");
+  return `<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Shizuku Apps Directory — New Apps</title>
+  <link href="${siteUrl}"/>
+  <link href="${siteUrl}feed.xml" rel="self"/>
+  <updated>${new Date(data.generated_at).toISOString()}</updated>
+  <id>${siteUrl}</id>
+  <subtitle>Newly discovered Android apps that use Shizuku</subtitle>
+${items}
+</feed>
+`;
 }
 
 function render(data) {
@@ -427,6 +468,11 @@ function render(data) {
     display: inline-flex;
     align-items: center;
   }
+  .feed-link {
+    color: var(--accent-2); text-decoration: none; font-size: 12px; font-weight: 700;
+    border: 1px solid var(--border); border-radius: 6px; padding: 2px 8px;
+  }
+  .feed-link:hover { border-color: var(--accent); color: var(--text); }
   .site-counter a:hover {
     color: var(--text);
   }
@@ -612,6 +658,7 @@ function render(data) {
 <footer>
   <div class="footer-inner">
   <span class="gen-line">Generated using <a href="https://github.com/rushiranpise/shizuku-modules/actions" target="_blank" rel="noopener"><b>GitHub Actions</b></a> on <span id="gen-date"></span></span>
+  <a class="feed-link" href="feed.xml" target="_blank" rel="noopener" title="Atom feed of new apps">RSS</a>
   </div>
 </footer>
 
