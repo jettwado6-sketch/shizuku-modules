@@ -80,12 +80,14 @@ async function main() {
     (r) => r.added_at && now - new Date(r.added_at).getTime() < WEEK_MS
   ).length;
   const officialCount = repos.filter((r) => (r.source || "").startsWith("lsposed-repo")).length;
+  const awesomeCount = repos.filter((r) => (r.source || "").startsWith("awesome")).length;
 
   const data = {
     generated_at: new Date().toISOString(),
     total: repos.length,
     fresh: freshCount,
     official: officialCount,
+    awesome: awesomeCount,
     visitorStats: await fetchVisitorStats(),
     repos,
   };
@@ -563,6 +565,15 @@ function render(data) {
     source: document.getElementById("source-filter"),
   };
 
+  // Populate the category dropdown from the data.
+  const catSet = new Set(DATA.repos.map((r) => r.category || "Miscellaneous"));
+  [...catSet].sort((a, b) => a.localeCompare(b)).forEach((c) => {
+    const opt = document.createElement("option");
+    opt.value = c;
+    opt.textContent = c;
+    el.category.appendChild(opt);
+  });
+
   document.getElementById("stat-total").textContent = fmtFull.format(DATA.total);
   document.getElementById("stat-awesome").textContent = fmtFull.format((DATA.awesome || 0));
   document.getElementById("stat-new").textContent = fmtFull.format(DATA.fresh);
@@ -871,7 +882,7 @@ function render(data) {
     const list = visible(DATA.repos);
     el.grid.replaceChildren(...list.map(card));
     el.empty.classList.toggle("hidden", list.length !== 0);
-    el.count.textContent = list.length + " of " + DATA.repos.length + " modules";
+    el.count.textContent = list.length + " of " + DATA.repos.length + " apps";
   }
 
   el.search.addEventListener("input", render);
