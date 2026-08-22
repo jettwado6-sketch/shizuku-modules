@@ -169,6 +169,9 @@ function render(data) {
   @media (max-width: 1024px) { .grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); } }
   @media (max-width: 900px) { .toolbar { gap: 10px; } .search-wrap { flex: 1 1 100%; } }
   @media (max-width: 640px) { header { padding: 40px 16px 28px; } .logo { font-size: 26px; } .tagline { font-size: 14px; } .stats { gap: 8px; margin-top: 18px; } .stat { padding: 6px 14px; font-size: 13px; } .toolbar { padding: 10px 16px; margin-bottom: 20px; } select { flex: 1 1 45%; padding: 9px 10px; } main { padding: 0 16px 48px; } .grid { grid-template-columns: minmax(0, 1fr); gap: 12px; } .card { padding: 16px; } }
+  .site-counter { display: flex; align-items: center; justify-content: center; flex-direction: column; margin: 12px auto 4px; color: var(--muted); font-size: 11px; gap: 4px; }
+  .site-counter a { color: var(--muted); text-decoration: none; }
+  .site-counter a:hover { color: var(--text); }
   @media (max-width: 480px) { #count { display: none; } .badges { flex-wrap: wrap; } .toolbar { gap: 8px; } }
 </style>
 </head>
@@ -212,6 +215,11 @@ function render(data) {
 <footer>
   <div class="footer-inner">
     <span class="gen-line">Generated using <a href="https://github.com/rushiranpise/shizuku-modules/actions" target="_blank" rel="noopener"><b>GitHub Actions</b></a> on <span id="gen-date"></span></span>
+  </div>
+  <div class="site-counter" aria-label="Visitor counter">
+    <a href="https://www.free-counters.org/" target="_blank" rel="noopener">Visitor counter by Free-Counters.org</a>
+    <script type="text/javascript" src="https://www.freevisitorcounters.com/auth.php?id=1753c948821b744e1c7a43d170302b10bdd1d58b"></script>
+    <script type="text/javascript" src="https://www.freevisitorcounters.com/en/home/counter/1624720/t/0"></script>
   </div>
 </footer>
 <script id="repo-data" type="application/json">${json}</script>
