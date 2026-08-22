@@ -657,6 +657,12 @@ function render(data) {
     <option value="search">GitHub search</option>
     <option value="awesome">awesome-shizuku</option>
   </select>
+  <select id="recency-filter" aria-label="Recency filter">
+    <option value="all">Updated: Any time</option>
+    <option value="7">Updated: Last 7 days</option>
+    <option value="30">Updated: Last 30 days</option>
+    <option value="90">Updated: Last 90 days</option>
+  </select>
   <label class="check" title="Only show apps that publish an APK in their GitHub releases">
     <input id="apk-only" type="checkbox"> Only with APK
   </label>
@@ -720,6 +726,7 @@ function render(data) {
     sort: document.getElementById("sort"),
     category: document.getElementById("category-filter"),
     source: document.getElementById("source-filter"),
+    recency: document.getElementById("recency-filter"),
     apk: document.getElementById("apk-only"),
     favOnly: document.getElementById("fav-only"),
     pager: document.getElementById("pager"),
@@ -740,7 +747,7 @@ function render(data) {
     el.category.appendChild(opt);
   });
 
-  // Shareable URL state: ?q=...&cat=...&src=...&sort=...&apk=0|1&fav=0|1
+  // Shareable URL state: ?q=...&cat=...&src=...&sort=...&rec=7&apk=1&fav=1
   const params = new URLSearchParams(location.search);
   const applyParams = () => {
     if (params.has("q")) el.search.value = params.get("q");
@@ -750,6 +757,9 @@ function render(data) {
     }
     if (params.has("sort") && [...el.sort.options].some((o) => o.value === params.get("sort"))) {
       el.sort.value = params.get("sort");
+    }
+    if (params.has("rec") && [...el.recency.options].some((o) => o.value === params.get("rec"))) {
+      el.recency.value = params.get("rec");
     }
     if (el.apk && params.get("apk") === "1") el.apk.checked = true;
     if (el.favOnly && params.get("fav") === "1") el.favOnly.checked = true;
@@ -837,11 +847,16 @@ function render(data) {
     return Math.floor(s / 31536000) + "y ago";
   }
 
-  function isFresh(repo) {
-    const ts =
+  function lastActivity(repo) {
+    return (
       repo.pushed_at ||
       (repo.release && repo.release.published_at) ||
-      repo.created_at;
+      repo.created_at
+    );
+  }
+
+  function isFresh(repo) {
+    const ts = lastActivity(repo);
     return ts && Date.now() - new Date(ts).getTime() < 7 * 86400000;
   }
 
@@ -921,10 +936,7 @@ function render(data) {
     }
 
     // Relative "updated X ago" line on every card, based on last push or release.
-    const updatedIso =
-      repo.pushed_at ||
-      (repo.release && repo.release.published_at) ||
-      repo.created_at;
+    const updatedIso = lastActivity(repo);
     if (updatedIso) {
       const upd = document.createElement("div");
       upd.className = "updated-line";
@@ -1290,6 +1302,11 @@ function render(data) {
       if (srcFilter === "search" && r.source && r.source.startsWith("awesome")) return false;
       if (el.apk && el.apk.checked && !(r.release && r.release.apk_url)) return false;
       if (el.favOnly && el.favOnly.checked && !favorites.has(r.full_name)) return false;
+      const recDays = el.recency ? parseInt(el.recency.value, 10) : 0;
+      if (recDays) {
+        const ts = lastActivity(r);
+        if (!ts || Date.now() - new Date(ts).getTime() > recDays * 86400000) return false;
+      }
       if (!q) return true;
       return (
         r.full_name.toLowerCase().includes(q) ||
@@ -1351,6 +1368,7 @@ function render(data) {
     if (el.category.value !== "all") p.set("cat", el.category.value);
     if (el.source.value !== "all") p.set("src", el.source.value);
     if (el.sort.value !== "updated") p.set("sort", el.sort.value);
+    if (el.recency.value !== "all") p.set("rec", el.recency.value);
     if (el.apk.checked) p.set("apk", "1");
     if (el.favOnly.checked) p.set("fav", "1");
     const qs = p.toString();
@@ -1362,6 +1380,7 @@ function render(data) {
   el.sort.addEventListener("change", filterChanged);
   el.category.addEventListener("change", filterChanged);
   el.source.addEventListener("change", filterChanged);
+  el.recency.addEventListener("change", filterChanged);
   el.apk.addEventListener("change", filterChanged);
   el.favOnly.addEventListener("change", filterChanged);
   el.loadMore.addEventListener("click", () => {
