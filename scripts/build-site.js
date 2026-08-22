@@ -490,6 +490,59 @@ function render(data) {
   @media (hover: hover) and (pointer: fine) {
     .back-top:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(0, 0, 0, .45); }
   }
+  .modal { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .modal-backdrop { position: absolute; inset: 0; background: rgba(4, 6, 10, .72); backdrop-filter: blur(3px); }
+  .modal-card {
+    position: relative; width: min(720px, 100%); max-height: min(86vh, 900px);
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, .55); overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .modal-close {
+    position: absolute; top: 12px; right: 12px; z-index: 2;
+    border: 0; background: rgba(255, 255, 255, .06); color: var(--text);
+    width: 34px; height: 34px; border-radius: 50%; font-size: 20px; line-height: 1;
+    cursor: pointer; font-family: inherit; transition: background .15s;
+  }
+  .modal-close:hover { background: rgba(255, 255, 255, .14); }
+  #modal-body { overflow-y: auto; padding: 26px 28px 30px; }
+  .m-head { display: flex; gap: 14px; align-items: flex-start; padding-right: 40px; }
+  .m-head img { width: 56px; height: 56px; border-radius: 12px; flex: none; }
+  .m-title { font-size: 20px; font-weight: 800; color: var(--text); word-break: break-word; }
+  .m-title a { color: var(--accent-2); text-decoration: none; }
+  .m-title a:hover { text-decoration: underline; }
+  .m-sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
+  .m-desc { color: var(--text); font-size: 14px; line-height: 1.6; margin: 14px 0 4px; }
+  .m-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; }
+  .m-chip {
+    background: var(--bg-soft); border: 1px solid var(--border); border-radius: 8px;
+    padding: 5px 11px; font-size: 12.5px; color: var(--muted);
+  }
+  .m-chip b { color: var(--text); font-weight: 700; }
+  .m-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 6px; }
+  .m-actions a {
+    display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px;
+    border-radius: 10px; text-decoration: none; font-size: 13.5px; font-weight: 600;
+    background: linear-gradient(135deg, var(--accent), var(--accent-3)); color: #fff;
+  }
+  .m-actions a.ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+  .m-actions a.ghost:hover { color: var(--text); border-color: var(--accent); }
+  .m-readme { margin-top: 18px; border-top: 1px solid var(--border); padding-top: 16px; }
+  .m-readme h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin: 0 0 12px; }
+  .m-readme .md { color: var(--text); font-size: 14px; line-height: 1.65; }
+  .m-readme .md h1, .m-readme .md h2, .m-readme .md h3 { color: var(--text); margin: 18px 0 8px; font-size: 17px; }
+  .m-readme .md p { margin: 8px 0; }
+  .m-readme .md code { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px; font-size: 12.5px; }
+  .m-readme .md pre { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 8px; padding: 12px; overflow-x: auto; }
+  .m-readme .md pre code { background: none; border: 0; padding: 0; }
+  .m-readme .md a { color: var(--accent-2); }
+  .m-readme .md img { max-width: 100%; border-radius: 8px; }
+  .m-readme .md ul, .m-readme .md ol { padding-left: 22px; margin: 8px 0; }
+  .m-readme .md li { margin: 3px 0; }
+  .m-readme .md blockquote { border-left: 3px solid var(--accent); margin: 10px 0; padding: 2px 12px; color: var(--muted); }
+  .m-readme .md table { border-collapse: collapse; margin: 10px 0; }
+  .m-readme .md th, .m-readme .md td { border: 1px solid var(--border); padding: 6px 10px; font-size: 13px; }
+  .m-noreadme { color: var(--muted); font-size: 13px; font-style: italic; }
 </style>
 </head>
 <body>
@@ -561,6 +614,14 @@ function render(data) {
   <span class="gen-line">Generated using <a href="https://github.com/rushiranpise/shizuku-modules/actions" target="_blank" rel="noopener"><b>GitHub Actions</b></a> on <span id="gen-date"></span></span>
   </div>
 </footer>
+
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-label="App details">
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card">
+    <button class="modal-close" data-close aria-label="Close">&#215;</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
 
 <script id="repo-data" type="application/json">${json}</script>
 <script>
@@ -888,8 +949,172 @@ function render(data) {
 
     c.append(foot);
     if (dlRow) c.append(dlRow);
+
+    // Open the detail modal on card click (ignore clicks on links/buttons).
+    c.addEventListener("click", (e) => {
+      if (e.target.closest("a, button")) return;
+      openModal(repo);
+    });
+    c.style.cursor = "pointer";
     return c;
   }
+
+  // ---- Detail modal ----
+  const modalEl = document.getElementById("modal");
+  const modalBody = document.getElementById("modal-body");
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // Minimal, safe markdown renderer (no raw HTML ever reaches the DOM).
+  const TICK3 = String.fromCharCode(96).repeat(3);
+  const TICK1 = String.fromCharCode(96);
+  function mdToHtml(md) {
+    const fence = new RegExp(TICK3 + "([^" + TICK1 + "]*?)" + TICK3, "gs");
+    const inline = new RegExp(TICK1 + "([^" + TICK1 + "]+)" + TICK1, "g");
+    let html = escapeHtml(md)
+      .replace(fence, (m, code) => "<pre><code>" + code.trim() + "</code></pre>")
+      .replace(inline, "<code>$1</code>")
+      .replace(/^### (.*)$/gm, "<h3>$1</h3>")
+      .replace(/^## (.*)$/gm, "<h2>$1</h2>")
+      .replace(/^# (.*)$/gm, "<h1>$1</h1>")
+      .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
+      .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, t, u) =>
+        /^https?:\/\//i.test(u)
+          ? "<a href=\"" + u + "\" target=\"_blank\" rel=\"noopener\">" + t + "</a>"
+          : t)
+      .replace(/^- (.*)$/gm, "<li>$1</li>")
+      .replace(/^\d+\. (.*)$/gm, "<li>$1</li>");
+    // Wrap consecutive list items.
+    html = html.replace(/(<li>.*?<\/li>)(\s*(?=<li>))?/gs, "<ul>$1</ul>");
+    return html
+      .split(/\n{2,}/)
+      .map((block) => (block.trim() && !/^<[ou]l>|<h[123]>|<pre>/.test(block) ? "<p>" + block + "</p>" : block))
+      .join("\n");
+  }
+
+  async function openModal(repo) {
+    const release = repo.release || {};
+    const isStore = repo.html_url && !repo.html_url.includes("github.com");
+    const head = document.createElement("div");
+    head.className = "m-head";
+    if (repo.owner && repo.owner.avatar_url) {
+      const img = document.createElement("img");
+      img.src = repo.owner.avatar_url;
+      img.alt = "";
+      head.append(img);
+    }
+    const t = document.createElement("div");
+    const title = document.createElement("div");
+    title.className = "m-title";
+    const titleLink = document.createElement("a");
+    titleLink.href = repo.html_url || "#";
+    titleLink.target = "_blank";
+    titleLink.rel = "noopener";
+    titleLink.textContent = repo.full_name;
+    title.append(titleLink);
+    const sub = document.createElement("div");
+    sub.className = "m-sub";
+    const subParts = [];
+    if (repo.category) subParts.push(repo.category);
+    if (repo.language) subParts.push(repo.language);
+    if (repo.source && repo.source.startsWith("awesome")) subParts.push("awesome-shizuku");
+    sub.textContent = subParts.join(" · ");
+    t.append(title, sub);
+    head.append(t);
+    modalBody.replaceChildren(head);
+
+    if (repo.description) {
+      const d = document.createElement("p");
+      d.className = "m-desc";
+      d.textContent = repo.description;
+      modalBody.append(d);
+    }
+
+    const meta = document.createElement("div");
+    meta.className = "m-meta";
+    if (typeof repo.stargazers_count === "number") {
+      const s = document.createElement("span");
+      s.className = "m-chip";
+      s.innerHTML = "★ <b>" + fmt.format(repo.stargazers_count) + "</b> stars";
+      meta.append(s);
+    }
+    if (repo.license) {
+      const l = document.createElement("span");
+      l.className = "m-chip";
+      l.textContent = repo.license;
+      l.title = "License";
+      meta.append(l);
+    }
+    if (release.tag) {
+      const v = document.createElement("span");
+      v.className = "m-chip";
+      v.innerHTML = "Release <b>" + escapeHtml(release.tag) + "</b>" + (release.prerelease ? " (pre)" : "");
+      meta.append(v);
+    }
+    if (repo.pushed_at) {
+      const u = document.createElement("span");
+      u.className = "m-chip";
+      u.textContent = "Updated " + new Date(repo.pushed_at).toLocaleDateString();
+      meta.append(u);
+    }
+    modalBody.append(meta);
+
+    const actions = document.createElement("div");
+    actions.className = "m-actions";
+    const mk = (href, label, ghost) => {
+      const a = document.createElement("a");
+      a.href = href;
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.textContent = label;
+      if (ghost) a.className = "ghost";
+      actions.append(a);
+    };
+    if (release.apk_url) mk(release.apk_url, "⬇ Download APK");
+    else if (release.html_url) mk(release.html_url, "View release");
+    if (repo.html_url) mk(repo.html_url, isStore ? "Open store page" : "View on GitHub", true);
+    if (repo.homepage && repo.homepage !== repo.html_url) mk(repo.homepage, "Homepage", true);
+    modalBody.append(actions);
+
+    // README — fetched live from raw.githubusercontent (CORS-open).
+    const rd = document.createElement("div");
+    rd.className = "m-readme";
+    rd.innerHTML = "<h3>README</h3><p class='m-noreadme'>Loading…</p>";
+    modalBody.append(rd);
+    if (!isStore && repo.full_name.includes("/")) {
+      fetch("https://raw.githubusercontent.com/" + encodeURIComponent(repo.full_name) + "/HEAD/README.md", { signal: AbortSignal.timeout(12000) })
+        .then((r) => (r.ok ? r.text() : Promise.reject()))
+        .then((md) => {
+          const mdDiv = document.createElement("div");
+          mdDiv.className = "md";
+          mdDiv.innerHTML = mdToHtml(md);
+          rd.replaceChildren(document.createElement("h3"), mdDiv);
+        })
+        .catch(() => {
+          rd.innerHTML = "<h3>README</h3><p class='m-noreadme'>README not available.</p>";
+        });
+    } else {
+      rd.innerHTML = "<h3>README</h3><p class='m-noreadme'>Store app — no README.</p>";
+    }
+
+    modalEl.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeModal() {
+    modalEl.classList.add("hidden");
+    document.body.style.overflow = "";
+    modalBody.replaceChildren();
+  }
+
+  modalEl.addEventListener("click", (e) => {
+    if (e.target.closest("[data-close]")) closeModal();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !modalEl.classList.contains("hidden")) closeModal();
+  });
 
   function visible(repos) {
     const q = el.search.value.trim().toLowerCase();
