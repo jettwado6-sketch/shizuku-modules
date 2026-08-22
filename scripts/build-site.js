@@ -1044,10 +1044,60 @@ function render(data) {
     return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
-  // Minimal, safe markdown renderer (no raw HTML ever reaches the DOM).
+  // Tags allowed to survive un-escaping from README raw HTML. Everything else
+  // stays escaped and renders as plain text, so no script or handler can run.
+  const SAFE_HTML_TAGS = new Set([
+    "p", "a", "img", "h1", "h2", "h3", "h4", "h5", "h6", "b", "strong", "em", "i",
+    "u", "s", "code", "pre", "ul", "ol", "li", "br", "hr", "table", "thead", "tbody",
+    "tr", "th", "td", "blockquote", "span", "div", "sub", "sup", "details", "summary",
+    "center", "figure", "figcaption", "kbd", "mark", "small",
+  ]);
+
+  // Un-escape a whitelisted subset of HTML tags/attributes that GitHub READMEs
+  // commonly use (banner <img>, centered <p>, <h1 align=...>, tables, ...).
+  // Event handlers, style and non-http src/href are dropped.
+  function unescapeSafeTags(s, rawBase) {
+    const resolveUrl = (u) => {
+      if (/^(https?:|data:image)/i.test(u)) return u;
+      if (u.startsWith("#")) return u;
+      return rawBase + String(u).replace(/^\\.?\\//, "");
+    };
+    return s.replace(/&lt;(\\/?)([a-zA-Z][a-zA-Z0-9]*)((?:\\s+[a-zA-Z-]+=(?:"[^"]*"|'[^']*'|[^\\s>]*))*)\\s*\\/?&gt;/g, (m, close, tagName, attrs) => {
+      const tag = tagName.toLowerCase();
+      if (!SAFE_HTML_TAGS.has(tag)) return m;
+      const attrRe = /([a-zA-Z-]+)=("([^"]*)"|'([^']*)'|([^\\s>]+))/g;
+      const kept = [];
+      let am;
+      while ((am = attrRe.exec(attrs))) {
+        const name = am[1].toLowerCase();
+        const val = am[3] ?? am[4] ?? am[5] ?? "";
+        if (name.startsWith("on") || name === "style") continue;
+        if (name === "href" && !/^(https?:|mailto:|#|\\/|\\.)/i.test(val)) continue;
+        if (name === "src") {
+          const resolved = /^(https?:|data:image)/i.test(val) ? val : resolveUrl(val);
+          kept.push(name + '="' + resolved.replace(/"/g, "&quot;") + '"');
+          continue;
+        }
+        kept.push(name + '="' + val.replace(/"/g, "&quot;") + '"');
+      }
+      return "<" + close + tag + (kept.length ? " " + kept.join(" ") : "") + ">";
+    });
+  }
+
+  // Minimal, safe markdown renderer. Raw HTML is escaped first, then only a
+  // whitelisted subset is un-escaped, so no script/event handler ever runs.
   const TICK3 = String.fromCharCode(96).repeat(3);
   const TICK1 = String.fromCharCode(96);
-  function mdToHtml(md) {
+  function mdToHtml(md, repoFull) {
+    const rawBase =
+      repoFull && repoFull.includes("/")
+        ? "https://raw.githubusercontent.com/" + repoFull + "/HEAD/"
+        : "";
+    const resolveUrl = (u) => {
+      if (/^(https?:|data:image)/i.test(u)) return u;
+      if (u.startsWith("#")) return u;
+      return rawBase + String(u).replace(/^\\.?\\//, "");
+    };
     const fence = new RegExp(TICK3 + "([^" + TICK1 + "]*?)" + TICK3, "gs");
     const inline = new RegExp(TICK1 + "([^" + TICK1 + "]+)" + TICK1, "g");
     let html = escapeHtml(md)
@@ -1057,17 +1107,22 @@ function render(data) {
       .replace(/^## (.*)$/gm, "<h2>$1</h2>")
       .replace(/^# (.*)$/gm, "<h1>$1</h1>")
       .replace(/\\*\\*([^*]+)\\*\\*/g, "<b>$1</b>")
+      .replace(/!\\[([^\\]]*)\\]\\(([^)\\s]+)(?:\\s+&quot;[^)]*&quot;)?\\)/g, (m, alt, u) =>
+        '<img src="' + resolveUrl(u).replace(/"/g, "&quot;") + '" alt="' + alt.replace(/"/g, "&quot;") + '" loading="lazy">')
       .replace(/\\[([^\\]]+)\\]\\(([^)\\s]+)\\)/g, (m, t, u) =>
         /^https?:\\/\\//i.test(u)
-          ? '<a href="' + u + '" target="_blank" rel="noopener">' + t + '</a>'
+          ? '<a href="' + u + '" target="_blank" rel="noopener">' + t + "</a>"
           : t)
       .replace(/^- (.*)$/gm, "<li>$1</li>")
       .replace(/^\\d+\\. (.*)$/gm, "<li>$1</li>");
-    // Wrap consecutive list items.
     html = html.replace(/(<li>.*?<\\/li>)(\\s*(?=<li>))?/gs, "<ul>$1</ul>");
+    html = unescapeSafeTags(html, rawBase);
     return html
       .split(/\\n{2,}/)
-      .map((block) => (block.trim() && !/^<[ou]l>|<h[123]>|<pre>/.test(block) ? "<p>" + block + "</p>" : block))
+      .map((block) =>
+        block.trim() && !/^<(p|div|img|table|blockquote|details|figure|[ou]l|h[1-6]|pre)/.test(block)
+          ? "<p>" + block + "</p>"
+          : block)
       .join("\\n");
   }
 
