@@ -169,6 +169,36 @@ function render(data) {
   @media (max-width: 1024px) { .grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); } }
   @media (max-width: 900px) { .toolbar { gap: 10px; } .search-wrap { flex: 1 1 100%; } }
   @media (max-width: 640px) { header { padding: 40px 16px 28px; } .logo { font-size: 26px; } .tagline { font-size: 14px; } .stats { gap: 8px; margin-top: 18px; } .stat { padding: 6px 14px; font-size: 13px; } .toolbar { padding: 10px 16px; margin-bottom: 20px; } select { flex: 1 1 45%; padding: 9px 10px; } main { padding: 0 16px 48px; } .grid { grid-template-columns: minmax(0, 1fr); gap: 12px; } .card { padding: 16px; } }
+  .visitor-stats {
+    display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 16px 0 0;
+  }
+  .vs-caption {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--muted); font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .12em;
+  }
+  .vs-live {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10px; font-weight: 800; letter-spacing: .08em; color: #f0b429;
+  }
+  .vs-live::before {
+    content: ""; width: 7px; height: 7px; border-radius: 50%;
+    background: currentColor; box-shadow: 0 0 6px currentColor;
+    animation: vs-blink 1.6s ease-in-out infinite;
+  }
+  .vs-live.live { color: var(--new); }
+  .vs-live.cached { color: #f0b429; }
+  @keyframes vs-blink { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+  .vs-items {
+    display: flex; align-items: baseline; justify-content: center;
+    gap: 10px 28px; flex-wrap: wrap; font-size: 14px;
+  }
+  .visitor-stats .vs-item { display: inline-flex; align-items: baseline; gap: 8px; }
+  .visitor-stats strong {
+    color: var(--text); font-size: 24px; font-weight: 800;
+    font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  .visitor-stats .vs-item > span { color: var(--muted); font-size: 13px; }
   .site-counter {
     display: flex; align-items: center; justify-content: center;
     margin: 28px auto 4px; color: var(--muted); font-size: 11px;
@@ -188,6 +218,15 @@ function render(data) {
     <span class="stat"><b id="stat-awesome">0</b> from awesome-shizuku</span>
     <span class="stat"><b id="stat-new">0</b> new this week</span>
     <span class="stat">Updated <b id="stat-updated">&mdash;</b></span>
+  </div>
+  <div class="visitor-stats" aria-label="Visitor statistics">
+    <span class="vs-caption">Visitor Info <span id="vsLive" class="vs-live" title="">syncing</span></span>
+    <div class="vs-items">
+      <span class="vs-item"><strong id="vsToday">&ndash;</strong><span>today</span></span>
+      <span class="vs-item"><strong id="vsYesterday">&ndash;</strong><span>yesterday</span></span>
+      <span class="vs-item"><strong id="vsOnline">&ndash;</strong><span>online</span></span>
+      <span class="vs-item"><strong id="vsTotal">&ndash;</strong><span>all time</span></span>
+    </div>
   </div>
 </header>
 <div class="toolbar">
@@ -353,6 +392,62 @@ function render(data) {
     el.empty.classList.toggle("hidden", list.length !== 0);
     el.count.textContent = list.length + " of " + DATA.repos.length + " apps";
   }
+  // Fetch visitor stats live from freevisitorcounters via CORS proxy
+  (function refreshVisitorStats() {
+    const badge = document.getElementById("vsLive");
+    if (!badge) return;
+    const statsUrl = "https://www.freevisitorcounters.com/en/home/stats/id/1624720";
+    const endpoints = [
+      "https://api.allorigins.win/raw?url=" + encodeURIComponent(statsUrl),
+      "https://api.allorigins.win/get?url=" + encodeURIComponent(statsUrl),
+    ];
+    const applyStats = (page) => {
+      const overview = page.match(/<th colspan="2">Visitors Overview<\/th>([\\s\\S]*?)<\/tbody>/);
+      if (!overview) return false;
+      const fields = { Today: "vsToday", Yesterday: "vsYesterday", All: "vsTotal", Online: "vsOnline" };
+      const cell = /<td>(.*?)<\/td>\\s*<td>(.*?)<\/td>/g;
+      let match;
+      let updated = false;
+      while ((match = cell.exec(overview[1]))) {
+        const label = match[1].trim();
+        const value = match[2].trim();
+        if (fields[label] && /^\\d+$/.test(value)) {
+          document.getElementById(fields[label]).textContent = value;
+          updated = true;
+        }
+      }
+      return updated;
+    };
+    const tryEndpoint = (index, attempt) => {
+      return fetch(endpoints[index % endpoints.length])
+        .then((response) => {
+          if (!response.ok) throw new Error("proxy " + response.status);
+          return index % 2 === 0 ? response.text() : response.json();
+        })
+        .then((payload) => {
+          const page = index % 2 === 0 ? payload : (payload.contents || "");
+          if (!applyStats(page)) throw new Error("unparseable stats page");
+          badge.classList.remove("cached");
+          badge.classList.add("live");
+          badge.textContent = "live";
+          badge.title = "Updated just now";
+        })
+        .catch((error) => {
+          if (attempt < 5) {
+            return new Promise((resolve) => setTimeout(resolve, 900 + attempt * 700)).then(() =>
+              tryEndpoint(index + 1, attempt + 1)
+            );
+          }
+          throw error;
+        });
+    };
+    tryEndpoint(0, 0).catch(() => {
+      badge.classList.add("cached");
+      badge.textContent = "cached";
+      badge.title = "Live refresh failed; showing last generated values";
+    });
+  })();
+
   el.search.addEventListener("input", render);
   el.sort.addEventListener("change", render);
   el.category.addEventListener("change", render);
