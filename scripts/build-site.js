@@ -1026,19 +1026,19 @@ function render(data) {
       .replace(/^### (.*)$/gm, "<h3>$1</h3>")
       .replace(/^## (.*)$/gm, "<h2>$1</h2>")
       .replace(/^# (.*)$/gm, "<h1>$1</h1>")
-      .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
-      .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, t, u) =>
-        /^https?:\/\//i.test(u)
-          ? "<a href=\"" + u + "\" target=\"_blank\" rel=\"noopener\">" + t + "</a>"
+      .replace(/\\*\\*([^*]+)\\*\\*/g, "<b>$1</b>")
+      .replace(/\\[([^\\]]+)\\]\\(([^)\\s]+)\\)/g, (m, t, u) =>
+        /^https?:\\/\\//i.test(u)
+          ? '<a href="' + u + '" target="_blank" rel="noopener">' + t + '</a>'
           : t)
       .replace(/^- (.*)$/gm, "<li>$1</li>")
-      .replace(/^\d+\. (.*)$/gm, "<li>$1</li>");
+      .replace(/^\\d+\\. (.*)$/gm, "<li>$1</li>");
     // Wrap consecutive list items.
-    html = html.replace(/(<li>.*?<\/li>)(\s*(?=<li>))?/gs, "<ul>$1</ul>");
+    html = html.replace(/(<li>.*?<\\/li>)(\\s*(?=<li>))?/gs, "<ul>$1</ul>");
     return html
-      .split(/\n{2,}/)
+      .split(/\\n{2,}/)
       .map((block) => (block.trim() && !/^<[ou]l>|<h[123]>|<pre>/.test(block) ? "<p>" + block + "</p>" : block))
-      .join("\n");
+      .join("\\n");
   }
 
   async function openModal(repo) {
