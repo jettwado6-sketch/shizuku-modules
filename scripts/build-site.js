@@ -356,6 +356,15 @@ function render(data) {
     min-width: 0; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .app-date { flex-shrink: 0; white-space: nowrap; }
+  .updated-line {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--muted);
+  }
+  .updated-label {
+    font-weight: 600; letter-spacing: .3px; text-transform: uppercase;
+    font-size: 10px; color: var(--muted); opacity: .8;
+  }
+  .updated-val { color: var(--text); font-weight: 600; }
   .app-api {
     flex-shrink: 0;
     font-size: 11px; font-weight: 700; letter-spacing: .2px;
@@ -909,6 +918,26 @@ function render(data) {
         meta.append(date);
       }
       c.append(meta);
+    }
+
+    // Relative "updated X ago" line on every card, based on last push or release.
+    const updatedIso =
+      repo.pushed_at ||
+      (repo.release && repo.release.published_at) ||
+      repo.created_at;
+    if (updatedIso) {
+      const upd = document.createElement("div");
+      upd.className = "updated-line";
+      const updLabel = document.createElement("span");
+      updLabel.className = "updated-label";
+      updLabel.textContent = "updated";
+      const updVal = document.createElement("span");
+      updVal.className = "updated-val";
+      updVal.textContent = timeAgo(updatedIso);
+      updVal.title =
+        "Last activity: " + new Date(updatedIso).toLocaleString();
+      upd.append(updLabel, updVal);
+      c.append(upd);
     }
 
     const tags = repo.topics || [];
