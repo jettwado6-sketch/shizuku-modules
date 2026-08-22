@@ -1002,13 +1002,17 @@ function render(data) {
         (release.apk_url ? " \u00b7 direct APK download" : "");
       dlLinks.push(rel);
     }
-    if (repo.homepage) {
+    // Always show a second button so release cards look consistent:
+    // "Homepage" when the repo sets one, otherwise a "GitHub" link.
+    const secondaryHref = repo.homepage || repo.html_url;
+    const secondaryLabel = repo.homepage ? "Homepage" : "GitHub";
+    if (secondaryHref && secondaryHref !== release.html_url) {
       const home = document.createElement("a");
       home.className = "release-chip ghost";
-      home.href = repo.homepage;
+      home.href = secondaryHref;
       home.target = "_blank";
       home.rel = "noopener";
-      home.textContent = "Homepage";
+      home.textContent = secondaryLabel;
       dlLinks.push(home);
     }
     if (repo.license) {
