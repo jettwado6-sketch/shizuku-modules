@@ -3,7 +3,7 @@
   <title>Shizuku Apps Directory — New Apps</title>
   <link href="https://rushiranpise.github.io/shizuku-modules/"/>
   <link href="https://rushiranpise.github.io/shizuku-modules/feed.xml" rel="self"/>
-  <updated>2026-08-22T16:23:19.601Z</updated>
+  <updated>2026-08-22T16:25:11.516Z</updated>
   <id>https://rushiranpise.github.io/shizuku-modules/</id>
   <subtitle>Newly discovered Android apps that use Shizuku</subtitle>
     <entry>
@@ -19,6 +19,13 @@
       <id>https://github.com/StardewValleyMods/CloudSync-Mobile</id>
       <updated>2026-05-25T10:33:46.000Z</updated>
       <summary>An app that allows you to sync your Stardew Valley saves across multiple devices</summary>
+    </entry>
+    <entry>
+      <title>rushiranpise/shizuku-modules</title>
+      <link href="https://github.com/rushiranpise/shizuku-modules"/>
+      <id>https://github.com/rushiranpise/shizuku-modules</id>
+      <updated>2026-08-22T16:24:20.000Z</updated>
+      <summary></summary>
     </entry>
     <entry>
       <title>turin-dev/rish-mcp</title>
@@ -208,12 +215,5 @@
       <id>https://github.com/vvb2060/KeyAttestation</id>
       <updated>2025-09-30T14:57:21.000Z</updated>
       <summary>Supports generating, saving, loading, parsing and verifying Android key and ID attestation data.</summary>
-    </entry>
-    <entry>
-      <title>LinkSheet/LinkSheet</title>
-      <link href="https://github.com/LinkSheet/LinkSheet"/>
-      <id>https://github.com/LinkSheet/LinkSheet</id>
-      <updated>2026-08-07T12:52:13.000Z</updated>
-      <summary>Link handling for modern Android</summary>
     </entry>
 </feed>
