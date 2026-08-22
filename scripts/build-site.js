@@ -79,14 +79,12 @@ async function main() {
   const freshCount = repos.filter(
     (r) => r.added_at && now - new Date(r.added_at).getTime() < WEEK_MS
   ).length;
-  const officialCount = repos.filter((r) => (r.source || "").startsWith("lsposed-repo")).length;
   const awesomeCount = repos.filter((r) => (r.source || "").startsWith("awesome")).length;
 
   const data = {
     generated_at: new Date().toISOString(),
     total: repos.length,
     fresh: freshCount,
-    official: officialCount,
     awesome: awesomeCount,
     visitorStats: await fetchVisitorStats(),
     repos,
@@ -267,7 +265,6 @@ function render(data) {
   .badge.new { background: rgba(63, 185, 80, .15); color: var(--new); border: 1px solid rgba(63, 185, 80, .35); }
   .badge.archived { background: rgba(110, 118, 129, .15); color: var(--archived); border: 1px solid rgba(110, 118, 129, .35); }
   .badges .badge + .badge { margin-left: 0; }
-  .official-chip { color: var(--accent-2); font-weight: 700; font-size: 12px; letter-spacing: .3px; }
   .app-meta {
     display: flex; align-items: center; flex-wrap: wrap; row-gap: 4px; gap: 6px;
     font-size: 12.5px; color: var(--muted);
@@ -515,7 +512,7 @@ function render(data) {
   <div class="site-counter" aria-label="Visitor counter">
     <a href="https://www.free-counters.org/" target="_blank" rel="noopener">Visitor counter by Free-Counters.org</a>
     <script type="text/javascript" src="https://www.freevisitorcounters.com/auth.php?id=1753c948821b744e1c7a43d170302b10bdd1d58b"></script>
-    <script type="text/javascript" src="https://www.freevisitorcounters.com/en/home/counter/1617016/t/0"></script>
+    <script type="text/javascript" src="https://www.freevisitorcounters.com/en/home/counter/1624720/t/0"></script>
   </div>
 </main>
 
@@ -541,20 +538,6 @@ function render(data) {
   };
   const fmt = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
   const fmtFull = new Intl.NumberFormat("en");
-  const isOfficial = (r) => (r.source || "").startsWith("lsposed-repo");
-
-  function apiInfo(repo) {
-    const m = (repo && repo.metadata) || {};
-    const min = Number(m.minApi);
-    const max = Number(m.maxApi);
-    const target = Number(m.targetApi);
-    return {
-      min: Number.isFinite(min) ? min : null,
-      max: Number.isFinite(max) ? max : null,
-      target: Number.isFinite(target) ? target : null,
-    };
-  }
-
   const el = {
     grid: document.getElementById("grid"),
     empty: document.getElementById("empty"),
@@ -659,7 +642,6 @@ function render(data) {
   function card(repo) {
     const c = document.createElement("article");
     c.className = "card";
-    const isOfficialOnly = repo.source === "lsposed-repo";
 
     const top = document.createElement("div");
     top.className = "card-top";
@@ -680,15 +662,13 @@ function render(data) {
     a.rel = "noopener";
     a.textContent = repo.full_name;
     names.append(a);
-    if (!isOfficialOnly) {
-      const owner = document.createElement("div");
-      owner.className = "card-owner";
-      const parts = [];
-      if (repo.owner && repo.owner.login) parts.push("@" + repo.owner.login);
-      if (repo.package) parts.push(repo.package);
-      owner.textContent = parts.join(" \u00b7 ");
-      names.append(owner);
-    }
+    const owner = document.createElement("div");
+    owner.className = "card-owner";
+    const parts = [];
+    if (repo.owner && repo.owner.login) parts.push("@" + repo.owner.login);
+    if (repo.package) parts.push(repo.package);
+    owner.textContent = parts.join(" \u00b7 ");
+    names.append(owner);
     top.append(img, names);
     c.append(top);
 
@@ -701,8 +681,7 @@ function render(data) {
     const version =
       release.tag ||
       (repo.metadata && repo.metadata.version ? repo.metadata.version : "");
-    const api = apiInfo(repo);
-    if (version || api.min !== null || api.max !== null || api.target !== null) {
+    if (version || release.published_at) {
       const meta = document.createElement("div");
       meta.className = "app-meta";
       if (version) {
@@ -711,22 +690,6 @@ function render(data) {
         ver.textContent = version.startsWith("v") ? version : "v" + version;
         ver.title = "Version " + ver.textContent;
         meta.append(ver);
-      }
-      if (api.target !== null || api.min !== null || api.max !== null) {
-        const apiEl = document.createElement("span");
-        apiEl.className = "app-api";
-        // libxposed modules report the API they're built against (targetApi),
-        // classic modules report a minimum requirement (minApi).
-        apiEl.textContent =
-          api.target !== null
-            ? "libxposed " + api.target
-            : api.min !== null && api.max !== null
-              ? "libxposed " + api.min + "–" + api.max
-              : api.min !== null
-                ? "libxposed " + api.min + "+"
-                : "libxposed ≤" + api.max;
-        apiEl.title = "LSPosed framework API requirement (from module.prop/module.json)";
-        meta.append(apiEl);
       }
       if (release.published_at) {
         const date = document.createElement("span");
@@ -738,7 +701,7 @@ function render(data) {
       c.append(meta);
     }
 
-    const tags = isOfficialOnly ? repo.scope || [] : repo.topics || [];
+    const tags = repo.topics || [];
     if (tags.length) {
       const tagsEl = document.createElement("div");
       tagsEl.className = "tags";
@@ -769,11 +732,6 @@ function render(data) {
       starIcon.textContent = "★";
       stars.append(starIcon, document.createTextNode(" " + fmt.format(repo.stargazers_count)));
       foot.append(stars);
-    } else if (isOfficialOnly) {
-      const chip = document.createElement("span");
-      chip.className = "official-chip";
-      chip.textContent = "Official";
-      foot.append(chip);
     }
 
     if (repo.language) {
@@ -788,13 +746,7 @@ function render(data) {
 
     const badges = document.createElement("span");
     badges.className = "badges";
-    if (!isOfficialOnly && isOfficial(repo)) {
-      const b = document.createElement("span");
-      b.className = "badge official";
-      b.textContent = "Official";
-      badges.append(b);
-    }
-    if (!isOfficialOnly && repo.added_at && Date.now() - new Date(repo.added_at).getTime() < 7 * 86400000) {
+    if (repo.added_at && Date.now() - new Date(repo.added_at).getTime() < 7 * 86400000) {
       const b = document.createElement("span");
       b.className = "badge new";
       b.textContent = "New";
@@ -804,6 +756,13 @@ function render(data) {
       const b = document.createElement("span");
       b.className = "badge archived";
       b.textContent = "Archived";
+      badges.append(b);
+    }
+    if (repo.source && repo.source.startsWith("awesome")) {
+      const b = document.createElement("span");
+      b.className = "badge awesome";
+      b.textContent = "awesome-shizuku";
+      b.title = "Listed in awesome-shizuku";
       badges.append(b);
     }
     if (badges.childElementCount) foot.append(badges);

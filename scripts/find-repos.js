@@ -428,7 +428,7 @@ async function main() {
 
   const existing = loadJson(DATA_FILE, []);
   const existingList = Array.isArray(existing) ? existing : [];
-  const existingByKey = new Map(existingList.map((r) => [r.full_name, r]).filter(([k]) => k));
+  const existingByKey = new Map(existingList.map((r) => [r.full_name.toLowerCase(), r]).filter(([k]) => k));
   let ignored = loadJson(IGNORED_FILE, {});
   if (!ignored || typeof ignored !== "object" || Array.isArray(ignored)) ignored = {};
 
@@ -476,7 +476,7 @@ async function main() {
   console.log(`  ${toVerify.length} unique candidates`);
 
   const results = await runPool(toVerify, CONCURRENCY, async (repo) => {
-    const prevEntry = existingByKey.get(repo.full_name);
+    const prevEntry = existingByKey.get(repo.full_name.toLowerCase());
     if (repo._verified || (prevEntry && prevEntry.verified)) {
       return { repo, verdict: "known", marker: prevEntry ? prevEntry.marker : null };
     }
@@ -514,7 +514,7 @@ async function main() {
       rejected++;
       continue;
     }
-    const prev = existingByKey.get(repo.full_name);
+    const prev = existingByKey.get(repo.full_name.toLowerCase());
     let entry;
     if (repo._existing) {
       entry = { ...prev, verified: true };
@@ -528,7 +528,7 @@ async function main() {
     if (prev && prev.release) entry.release = prev.release;
     if (prev && prev.release_fetched_at) entry.release_fetched_at = prev.release_fetched_at;
     if (verdict === "known") known++;
-    final.set(entry.full_name, entry);
+    final.set(entry.full_name.toLowerCase(), entry);
     verified++;
   }
   console.log(`  Verified: ${verified} (${known} cached), Rejected: ${rejected}`);
@@ -571,6 +571,19 @@ async function main() {
             continue;
           }
 
+          // Preserve added_at and cached release info from a previous run so
+          // existing apps are never re-marked as "new" and releases aren't
+          // re-fetched (rate limits) every day.
+          const prevAwesome = existingByKey.get(key);
+          const awesomeAddedAt = prevAwesome ? prevAwesome.added_at : nowIso;
+          const awesomeRelease = prevAwesome && prevAwesome.release ? prevAwesome.release : null;
+          const awesomeReleaseFetchedAt =
+            prevAwesome && prevAwesome.release_fetched_at ? prevAwesome.release_fetched_at : null;
+          const awesomeCategory =
+            prevAwesome && prevAwesome.category !== "Miscellaneous"
+              ? prevAwesome.category
+              : app.category || "Miscellaneous";
+
           // Look up the repo via GitHub API
           const repoData = await lookupGithubRepo(app.githubRepo);
           if (repoData && !repoData.message) {
@@ -578,13 +591,17 @@ async function main() {
               ...pickRepo(repoData),
               verified: true,
               marker: "awesome-shizuku",
-              category: app.category || guessCategory(repoData),
+              category: awesomeCategory,
               source: md.label,
-              awesome_source: [md.label],
+              awesome_source: prevAwesome && prevAwesome.awesome_source
+                ? [...new Set([...prevAwesome.awesome_source, md.label])]
+                : [md.label],
               description: app.description || repoData.description || "",
-              added_at: nowIso,
+              added_at: awesomeAddedAt,
             };
-            final.set(entry.full_name, entry);
+            if (awesomeRelease) entry.release = awesomeRelease;
+            if (awesomeReleaseFetchedAt) entry.release_fetched_at = awesomeReleaseFetchedAt;
+            final.set(entry.full_name.toLowerCase(), entry);
             awesomeNew++;
             awesomeTotal++;
           } else {
@@ -605,12 +622,16 @@ async function main() {
               pushed_at: "",
               verified: true,
               marker: "awesome-shizuku",
-              category: app.category || "Miscellaneous",
+              category: awesomeCategory,
               source: md.label,
-              awesome_source: [md.label],
-              added_at: nowIso,
+              awesome_source: prevAwesome && prevAwesome.awesome_source
+                ? [...new Set([...prevAwesome.awesome_source, md.label])]
+                : [md.label],
+              added_at: awesomeAddedAt,
             };
-            final.set(entry.full_name, entry);
+            if (awesomeRelease) entry.release = awesomeRelease;
+            if (awesomeReleaseFetchedAt) entry.release_fetched_at = awesomeReleaseFetchedAt;
+            final.set(entry.full_name.toLowerCase(), entry);
             awesomeNew++;
             awesomeTotal++;
           }
@@ -622,6 +643,8 @@ async function main() {
             awesomeSkipped++;
             continue;
           }
+          // Preserve added_at from a previous run for store-only apps too.
+          const prevStore = existingList.find((r) => r.html_url === app.url);
           const entry = {
             full_name: app.name,
             html_url: app.url,
@@ -638,12 +661,16 @@ async function main() {
             pushed_at: "",
             verified: true,
             marker: "awesome-shizuku",
-            category: app.category || "Miscellaneous",
+            category: prevStore && prevStore.category !== "Miscellaneous"
+              ? prevStore.category
+              : app.category || "Miscellaneous",
             source: md.label,
-            awesome_source: [md.label],
+            awesome_source: prevStore && prevStore.awesome_source
+              ? [...new Set([...prevStore.awesome_source, md.label])]
+              : [md.label],
             license: app.license,
             isPaid: app.isPaid,
-            added_at: nowIso,
+            added_at: prevStore ? prevStore.added_at : nowIso,
           };
           final.set(key, entry);
           awesomeNew++;
