@@ -436,10 +436,33 @@ function render(data) {
     .badges { flex-wrap: wrap; }
     .toolbar { gap: 8px; }
   }
+  .back-top {
+    display: inline-flex;
+    position: fixed;
+    right: 22px;
+    bottom: calc(58px + env(safe-area-inset-bottom));
+    z-index: 21;
+    width: 48px;
+    height: 48px;
+    border-radius: 999px;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: white;
+    background: var(--accent);
+    border: 0;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, .35);
+    font-size: 28px;
+    line-height: 1;
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .back-top:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(0, 0, 0, .45); }
+  }
 </style>
 </head>
 <body>
-<header>
+<header id="top">
   <div class="logo"><span class="grad">Shizuku Apps Directory</span></div>
   <p class="tagline">Mega collection of apps using Shizuku — updated daily.</p>
   <div class="stats">
@@ -493,6 +516,8 @@ function render(data) {
     <script type="text/javascript" src="https://www.freevisitorcounters.com/en/home/counter/1617016/t/0"></script>
   </div>
 </main>
+
+  <a class="back-top" href="#top" aria-label="Back to top">&#8593;</a>
 
 <footer>
   <div class="footer-inner">
