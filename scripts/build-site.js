@@ -252,32 +252,20 @@ function render(data) {
     color: #fff; box-shadow: 0 2px 10px rgba(92, 107, 192, .35);
   }
   .check {
-    display: inline-flex; align-items: center; gap: 9px;
+    display: inline-flex; align-items: center;
     color: var(--muted); font-size: 13.5px; font-weight: 600;
-    cursor: pointer; user-select: none; padding: 9px 13px;
+    cursor: pointer; user-select: none; padding: 10px 16px;
     background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; transition: border-color .15s, color .15s, background .15s;
+    border-radius: 10px; transition: border-color .15s, color .15s, background .15s, box-shadow .15s;
   }
-  .check:hover { border-color: var(--accent); color: var(--text); }
-  .check:has(input:checked) { border-color: var(--accent); color: var(--text); }
-  .check input {
-    appearance: none; -webkit-appearance: none;
-    width: 16px; height: 16px; margin: 0; flex: none;
-    border: 2px solid var(--border); border-radius: 5px;
-    background: var(--bg-soft); cursor: pointer; position: relative;
-    transition: background .15s, border-color .15s;
-  }
-  .check input:hover { border-color: var(--accent-2); }
-  .check input:checked {
+  .check:hover { border-color: var(--accent-2); color: var(--text); }
+  .check:has(input:checked) {
     background: linear-gradient(135deg, var(--accent), var(--accent-3));
-    border-color: transparent;
+    color: #fff; border-color: transparent;
+    box-shadow: 0 2px 10px rgba(92, 107, 192, .35);
   }
-  .check input:checked::after {
-    content: ""; position: absolute; left: 4px; top: 1px;
-    width: 4px; height: 8px; border: solid #fff;
-    border-width: 0 2px 2px 0; transform: rotate(45deg);
-  }
-  .check input:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+  .check input { position: absolute; opacity: 0; pointer-events: none; }
+  .check input:focus-visible ~ * { outline: 2px solid var(--accent-2); outline-offset: 2px; border-radius: 4px; }
   .pager { display: flex; justify-content: center; gap: 10px; margin: 28px auto; }
   .load-more {
     padding: 12px 34px;
@@ -658,7 +646,7 @@ function render(data) {
     <option value="awesome">awesome-shizuku</option>
   </select>
   <label class="check" title="Only show apps that publish an APK in their GitHub releases">
-    <input id="apk-only" type="checkbox" checked> Only with APK
+    <input id="apk-only" type="checkbox"> Only with APK
   </label>
   <label class="check" title="Show only apps you have starred">
     <input id="fav-only" type="checkbox"> Favorites
@@ -751,7 +739,7 @@ function render(data) {
     if (params.has("sort") && [...el.sort.options].some((o) => o.value === params.get("sort"))) {
       el.sort.value = params.get("sort");
     }
-    if (el.apk && params.get("apk") === "0") el.apk.checked = false;
+    if (el.apk && params.get("apk") === "1") el.apk.checked = true;
     if (el.favOnly && params.get("fav") === "1") el.favOnly.checked = true;
   };
   applyParams();
@@ -1324,7 +1312,7 @@ function render(data) {
     if (el.category.value !== "all") p.set("cat", el.category.value);
     if (el.source.value !== "all") p.set("src", el.source.value);
     if (el.sort.value !== "updated") p.set("sort", el.sort.value);
-    if (!el.apk.checked) p.set("apk", "0");
+    if (el.apk.checked) p.set("apk", "1");
     if (el.favOnly.checked) p.set("fav", "1");
     const qs = p.toString();
     history.replaceState(null, "", qs ? "?" + qs : location.pathname);
