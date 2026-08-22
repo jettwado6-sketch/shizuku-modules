@@ -105,7 +105,17 @@ function render(data) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Shizuku Apps Directory</title>
+<title>Shizuku Apps Directory — ${data.total} apps that use Shizuku</title>
+<meta name="description" content="Searchable directory of ${data.total} Android apps that use Shizuku — ${data.awesome} from awesome-shizuku, updated daily with APK downloads.">
+<meta name="theme-color" content="#5C6BC0">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Shizuku Apps Directory">
+<meta property="og:title" content="Shizuku Apps Directory">
+<meta property="og:description" content="Searchable directory of ${data.total} Android apps that use Shizuku — updated daily with APK downloads.">
+<meta property="og:url" content="https://rushiranpise.github.io/shizuku-modules/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Shizuku Apps Directory">
+<meta name="twitter:description" content="Searchable directory of ${data.total} Android apps that use Shizuku — updated daily.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='1' y='1' width='14' height='14' rx='4' fill='%235C6BC0'/%3E%3Ctext x='8' y='12' font-size='10' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='white'%3ES%3C/text%3E%3C/svg%3E">
 <style>
   :root {
