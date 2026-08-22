@@ -278,13 +278,16 @@ function render(data) {
     border-width: 0 2px 2px 0; transform: rotate(45deg);
   }
   .check input:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+  .pager { display: flex; justify-content: center; gap: 10px; margin: 28px auto; }
   .load-more {
-    display: block; margin: 28px auto; padding: 12px 34px;
+    padding: 12px 34px;
     background: var(--card); color: var(--text); border: 1px solid var(--border);
     border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer;
     font-family: inherit; transition: background .15s, border-color .15s;
   }
   .load-more:hover { background: var(--card-hover); border-color: var(--accent); }
+  .load-more.ghost { background: transparent; color: var(--muted); font-weight: 500; }
+  .load-more.ghost:hover { color: var(--text); }
   .fav-btn {
     margin-left: auto; align-self: flex-start;
     border: 0; background: transparent; color: var(--muted);
@@ -666,7 +669,10 @@ function render(data) {
 
 <main>
   <div id="grid" class="grid"></div>
-  <button id="load-more" class="load-more hidden">Show more apps</button>
+  <div id="pager" class="pager hidden">
+    <button id="load-more" class="load-more">Show more apps</button>
+    <button id="load-all" class="load-more ghost">Load all</button>
+  </div>
   <p id="empty" class="empty hidden">No repos match your search.</p>
   <div class="site-counter" aria-label="Visitor counter">
     <a href="https://www.free-counters.org/" target="_blank" rel="noopener">Visitor counter by Free-Counters.org</a>
@@ -716,7 +722,9 @@ function render(data) {
     source: document.getElementById("source-filter"),
     apk: document.getElementById("apk-only"),
     favOnly: document.getElementById("fav-only"),
+    pager: document.getElementById("pager"),
     loadMore: document.getElementById("load-more"),
+    loadAll: document.getElementById("load-all"),
   };
 
   // Pagination: render PAGE_SIZE cards at a time; "Show more" grows the window.
@@ -1249,7 +1257,7 @@ function render(data) {
     const slice = list.slice(0, shown);
     el.grid.replaceChildren(...slice.map(card));
     el.empty.classList.toggle("hidden", list.length !== 0);
-    el.loadMore.classList.toggle("hidden", list.length <= shown);
+    el.pager.classList.toggle("hidden", list.length <= shown);
     el.count.textContent = list.length + " of " + DATA.repos.length + " apps";
     // Keep the URL shareable: mirrors the current filters.
     const p = new URLSearchParams();
@@ -1272,6 +1280,10 @@ function render(data) {
   el.favOnly.addEventListener("change", filterChanged);
   el.loadMore.addEventListener("click", () => {
     shown += PAGE_SIZE;
+    render();
+  });
+  el.loadAll.addEventListener("click", () => {
+    shown = Number.MAX_SAFE_INTEGER;
     render();
   });
   window.addEventListener("popstate", render);
