@@ -76,9 +76,13 @@ async function main() {
   }
 
   const now = Date.now();
-  const freshCount = repos.filter(
-    (r) => r.added_at && now - new Date(r.added_at).getTime() < WEEK_MS
-  ).length;
+  // "New this week" = real repo activity (pushed / released / created) in the
+  // last 7 days, not when the crawler first noticed the app.
+  const isFresh = (r) => {
+    const ts = r.pushed_at || (r.release && r.release.published_at) || r.created_at;
+    return ts && now - new Date(ts).getTime() < WEEK_MS;
+  };
+  const freshCount = repos.filter(isFresh).length;
   const awesomeCount = repos.filter((r) => (r.source || "").startsWith("awesome")).length;
 
   const data = {
@@ -826,6 +830,14 @@ function render(data) {
     return Math.floor(s / 31536000) + "y ago";
   }
 
+  function isFresh(repo) {
+    const ts =
+      repo.pushed_at ||
+      (repo.release && repo.release.published_at) ||
+      repo.created_at;
+    return ts && Date.now() - new Date(ts).getTime() < 7 * 86400000;
+  }
+
   function card(repo) {
     const c = document.createElement("article");
     c.className = "card";
@@ -946,7 +958,7 @@ function render(data) {
 
     const badges = document.createElement("span");
     badges.className = "badges";
-    if (repo.added_at && Date.now() - new Date(repo.added_at).getTime() < 7 * 86400000) {
+    if (isFresh(repo)) {
       const b = document.createElement("span");
       b.className = "badge new";
       b.textContent = "New";
