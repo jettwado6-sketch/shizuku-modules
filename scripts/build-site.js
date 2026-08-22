@@ -216,6 +216,13 @@ function render(data) {
     padding: 10px 6px;
   }
   .check input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+  .load-more {
+    display: block; margin: 28px auto; padding: 12px 34px;
+    background: var(--card); color: var(--text); border: 1px solid var(--border);
+    border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer;
+    font-family: inherit; transition: background .15s, border-color .15s;
+  }
+  .load-more:hover { background: var(--card-hover); border-color: var(--accent); }
   #count { margin-left: auto; color: var(--muted); font-size: 13px; }
 
   main { flex: 1; max-width: 1200px; margin: 0 auto; padding: 0 24px 60px; width: 100%; }
@@ -523,6 +530,7 @@ function render(data) {
 
 <main>
   <div id="grid" class="grid"></div>
+  <button id="load-more" class="load-more hidden">Show more apps</button>
   <p id="empty" class="empty hidden">No repos match your search.</p>
   <div class="site-counter" aria-label="Visitor counter">
     <a href="https://www.free-counters.org/" target="_blank" rel="noopener">Visitor counter by Free-Counters.org</a>
@@ -563,7 +571,12 @@ function render(data) {
     source: document.getElementById("source-filter"),
     apk: document.getElementById("apk-only"),
     favOnly: document.getElementById("fav-only"),
+    loadMore: document.getElementById("load-more"),
   };
+
+  // Pagination: render PAGE_SIZE cards at a time; "Show more" grows the window.
+  const PAGE_SIZE = 60;
+  let shown = PAGE_SIZE;
 
   // Populate the category dropdown from the data.
   const catSet = new Set(DATA.repos.map((r) => r.category || "Miscellaneous"));
@@ -891,8 +904,10 @@ function render(data) {
 
   function render() {
     const list = visible(DATA.repos);
-    el.grid.replaceChildren(...list.map(card));
+    const slice = list.slice(0, shown);
+    el.grid.replaceChildren(...slice.map(card));
     el.empty.classList.toggle("hidden", list.length !== 0);
+    el.loadMore.classList.toggle("hidden", list.length <= shown);
     el.count.textContent = list.length + " of " + DATA.repos.length + " apps";
     // Keep the URL shareable: mirrors the current filters.
     const p = new URLSearchParams();
@@ -906,12 +921,17 @@ function render(data) {
     history.replaceState(null, "", qs ? "?" + qs : location.pathname);
   }
 
-  el.search.addEventListener("input", render);
-  el.sort.addEventListener("change", render);
-  el.category.addEventListener("change", render);
-  el.source.addEventListener("change", render);
-  el.apk.addEventListener("change", render);
-  el.favOnly.addEventListener("change", render);
+  const filterChanged = () => { shown = PAGE_SIZE; render(); };
+  el.search.addEventListener("input", filterChanged);
+  el.sort.addEventListener("change", filterChanged);
+  el.category.addEventListener("change", filterChanged);
+  el.source.addEventListener("change", filterChanged);
+  el.apk.addEventListener("change", filterChanged);
+  el.favOnly.addEventListener("change", filterChanged);
+  el.loadMore.addEventListener("click", () => {
+    shown += PAGE_SIZE;
+    render();
+  });
   window.addEventListener("popstate", render);
   render();
 })();
