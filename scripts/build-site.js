@@ -223,6 +223,14 @@ function render(data) {
     font-family: inherit; transition: background .15s, border-color .15s;
   }
   .load-more:hover { background: var(--card-hover); border-color: var(--accent); }
+  .fav-btn {
+    margin-left: auto; align-self: flex-start;
+    border: 0; background: transparent; color: var(--muted);
+    font-size: 18px; line-height: 1; cursor: pointer; padding: 2px 4px;
+    transition: color .15s, transform .15s; font-family: inherit;
+  }
+  .fav-btn:hover { color: #e5484d; transform: scale(1.15); }
+  .fav-btn.on { color: #e5484d; }
   #count { margin-left: auto; color: var(--muted); font-size: 13px; }
 
   main { flex: 1; max-width: 1200px; margin: 0 auto; padding: 0 24px 60px; width: 100%; }
@@ -716,6 +724,19 @@ function render(data) {
     owner.textContent = parts.join(" \u00b7 ");
     names.append(owner);
     top.append(img, names);
+
+    // Favorite heart button — persists in localStorage.
+    const favBtn = document.createElement("button");
+    favBtn.className = "fav-btn" + (favorites.has(repo.full_name) ? " on" : "");
+    favBtn.type = "button";
+    favBtn.textContent = "♥";
+    favBtn.title = favorites.has(repo.full_name) ? "Remove from favorites" : "Add to favorites";
+    favBtn.setAttribute("aria-label", favBtn.title);
+    favBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleFav(repo.full_name, favBtn);
+    });
+    top.append(favBtn);
     c.append(top);
 
     const desc = document.createElement("p");
