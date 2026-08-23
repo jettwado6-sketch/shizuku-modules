@@ -3,7 +3,7 @@
   <title>Shizuku Apps Directory — New Apps</title>
   <link href="https://rushiranpise.github.io/shizuku-modules/"/>
   <link href="https://rushiranpise.github.io/shizuku-modules/feed.xml" rel="self"/>
-  <updated>2026-08-23T00:13:09.256Z</updated>
+  <updated>2026-08-23T00:21:15.974Z</updated>
   <id>https://rushiranpise.github.io/shizuku-modules/</id>
   <subtitle>Newly discovered Android apps that use Shizuku</subtitle>
     <entry>
@@ -18,35 +18,35 @@
       <link href="https://github.com/henrichg/PhoneProfilesPlus"/>
       <id>https://github.com/henrichg/PhoneProfilesPlus</id>
       <updated>2025-09-29T17:05:45.000Z</updated>
-      <summary>Allows automatic or one-click configuration of your device for specific life situations</summary>
+      <summary>Profile manager for Android - event triggered</summary>
     </entry>
     <entry>
       <title>palincat/gama</title>
       <link href="https://github.com/palincat/gama"/>
       <id>https://github.com/palincat/gama</id>
       <updated>2026-07-26T15:09:45.000Z</updated>
-      <summary>Can switch between OpenGL and Vulkan renderers by setting the `debug.hwui.renderer` system property</summary>
+      <summary>Graphics API Manager for Android (GAMA)</summary>
     </entry>
     <entry>
       <title>molihuan/hlbmerge_flutter</title>
       <link href="https://github.com/molihuan/hlbmerge_flutter"/>
       <id>https://github.com/molihuan/hlbmerge_flutter</id>
       <updated>2026-07-27T16:03:21.000Z</updated>
-      <summary>Merge and export BiliBili cache files into MP4, supports mobile and computer client</summary>
+      <summary>全平台将Bilibili缓存视频合并导出为mp4，支持android、windows(10以上)、linux、mac、harmony(仅2in1和PC)、ios，支持B站Android客户端缓存，支持B站Windows客户端缓存，支持B站Mac客户端缓存  Combine and export Bilibili cache files as MP4, support Android, Windows, Linux, Mac,Harmony,IOS, support Bilibili Android Windows Mac client cache</summary>
     </entry>
     <entry>
       <title>rayshift/translatefgo</title>
       <link href="https://github.com/rayshift/translatefgo"/>
       <id>https://github.com/rayshift/translatefgo</id>
       <updated>2026-04-25T19:42:50.000Z</updated>
-      <summary>Fate/Grand Order game translation project</summary>
+      <summary>FGO Translation Project</summary>
     </entry>
     <entry>
       <title>YasserNull/setbox</title>
       <link href="https://github.com/YasserNull/setbox"/>
       <id>https://github.com/YasserNull/setbox</id>
       <updated>2025-08-26T21:23:33.000Z</updated>
-      <summary>Modifies Android system settings through community-developed modules</summary>
+      <summary></summary>
     </entry>
     <entry>
       <title>rayshift/nextgenfs</title>
@@ -129,7 +129,7 @@
       <title>rushiranpise/shizuku-modules</title>
       <link href="https://github.com/rushiranpise/shizuku-modules"/>
       <id>https://github.com/rushiranpise/shizuku-modules</id>
-      <updated>2026-08-22T16:25:14.000Z</updated>
+      <updated>2026-08-23T00:20:06.000Z</updated>
       <summary></summary>
     </entry>
     <entry>
