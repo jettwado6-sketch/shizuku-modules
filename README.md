@@ -25,6 +25,8 @@ Apps are collected from three sources:
 
 Candidates that fail verification go into `data/ignored.json` so they are not re-checked on every run. Repos that carry an opt-in **`shizu_store.json`** at their root (the ShizuCoreFetch convention) are auto-verified and enriched with `package_name`, `category`, `license`, homepage, and screenshots.
 
+**App icons** — repos that publish via fastlane expose their real app icon at `fastlane/metadata/android/en-US/images/icon.png` (or a variant), which the crawler probes with raw fetches and stores as `icon_url`, so cards show the actual app icon instead of the GitHub owner avatar.
+
 Set `GITHUB_TOKEN` for higher rate limits and full tree-scan verification.
 
 ## The site
@@ -56,7 +58,7 @@ node scripts/build-site.js
 ```
 node scripts/find-repos.js [--max-pages N] [--delay MS] [--queries "q1|q2"]
                             [--ignore-ttl-days N] [--release-ttl-days N]
-                            [--no-awesome] [--no-store]
+                            [--icon-ttl-days N] [--no-awesome] [--no-store]
 ```
 
 ## Contributing

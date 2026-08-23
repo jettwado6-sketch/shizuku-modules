@@ -863,9 +863,18 @@ function render(data) {
     img.className = "avatar";
     img.alt = "";
     img.loading = "lazy";
-    img.src = repo.owner && repo.owner.avatar_url ? repo.owner.avatar_url : "";
+    const ownerAvatar = repo.owner && repo.owner.avatar_url ? repo.owner.avatar_url : "";
+    img.src = repo.icon_url || ownerAvatar;
     if (!img.src) img.style.display = "none";
-    img.addEventListener("error", () => { img.style.display = "none"; });
+    img.addEventListener("error", () => {
+      // App icon failed (moved/renamed) — fall back to the owner avatar.
+      if (img.src && img.src !== ownerAvatar) {
+        img.src = ownerAvatar;
+        if (!img.src) img.style.display = "none";
+      } else {
+        img.style.display = "none";
+      }
+    });
 
     const names = document.createElement("div");
     names.className = "card-name";
@@ -1188,10 +1197,14 @@ function render(data) {
     const isStore = repo.html_url && !repo.html_url.includes("github.com");
     const head = document.createElement("div");
     head.className = "m-head";
-    if (repo.owner && repo.owner.avatar_url) {
+    const mOwnerAvatar = repo.owner && repo.owner.avatar_url ? repo.owner.avatar_url : "";
+    if (mOwnerAvatar || repo.icon_url) {
       const img = document.createElement("img");
-      img.src = repo.owner.avatar_url;
+      img.src = repo.icon_url || mOwnerAvatar;
       img.alt = "";
+      img.addEventListener("error", () => {
+        if (img.src && img.src !== mOwnerAvatar) img.src = mOwnerAvatar;
+      });
       head.append(img);
     }
     const t = document.createElement("div");

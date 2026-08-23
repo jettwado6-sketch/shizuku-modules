@@ -42,6 +42,7 @@ const DEFAULT_DELAY_MS = 2000;
 const DEFAULT_IGNORE_TTL_DAYS = 30;
 const DEFAULT_RELEASE_TTL_DAYS = 7;
 const DEFAULT_STALE_DAYS = 90;
+const DEFAULT_ICON_TTL_DAYS = 60;
 const CONCURRENCY = 24;
 
 // GitHub search caps results at 1000 per query. When a query reports a larger
@@ -91,6 +92,16 @@ const SHIZUKU_MARKERS = [
 const SHIZUCOREFETCH_STORE_URL = "https://corefetch.siwane.xyz/?action=list";
 const SHIZU_STORE_FILE = "shizu_store.json";
 
+// ---- App icons via fastlane metadata ----
+// Repos publishing to Play/F-Droid usually keep their icon at one of these
+// paths (probed with raw fetches, so no GitHub API cost).
+const FASTLANE_ICON_PATHS = [
+  "fastlane/metadata/android/en-US/images/icon.png",
+  "fastlane/metadata/android/en/images/icon.png",
+  "metadata/android/en-US/images/icon.png",
+  "metadata/en-US/images/icon.png",
+];
+
 function parseArgs(argv) {
   const args = {
     queries: DEFAULT_QUERIES,
@@ -99,6 +110,7 @@ function parseArgs(argv) {
     ignoreTtlDays: DEFAULT_IGNORE_TTL_DAYS,
     releaseTtlDays: DEFAULT_RELEASE_TTL_DAYS,
     staleDays: DEFAULT_STALE_DAYS,
+    iconTtlDays: DEFAULT_ICON_TTL_DAYS,
     noAwesome: false,
     noStore: false,
   };
@@ -121,6 +133,9 @@ function parseArgs(argv) {
         break;
       case "--stale-days":
         args.staleDays = parseInt(argv[++i], 10) || DEFAULT_STALE_DAYS;
+        break;
+      case "--icon-ttl-days":
+        args.iconTtlDays = parseInt(argv[++i], 10) || DEFAULT_ICON_TTL_DAYS;
         break;
       case "--no-awesome":
         args.noAwesome = true;
@@ -376,15 +391,27 @@ async function treeCheck(repo) {
   const branch = repo.default_branch || "HEAD";
   const url = `https://api.github.com/repos/${repo.full_name}/git/trees/${encodeURIComponent(branch)}?recursive=1`;
   const res = await githubGet(url);
-  if (!res || !res.ok) return { verified: false, marker: null };
+  if (!res || !res.ok) return { verified: false, marker: null, iconPath: null };
   try {
     const body = await res.json();
-    const hit = (body.tree || [])
-      .map((f) => f.path)
-      .find((p) => /build\.gradle(\.kts)?$/.test(p) || /libs\.versions\.toml$/.test(p));
-    return hit ? { verified: true, marker: hit } : { verified: false, marker: null };
+    const paths = (body.tree || []).map((f) => f.path);
+    const hit = paths.find((p) => /build\.gradle(\.kts)?$/.test(p) || /libs\.versions\.toml$/.test(p));
+    // fastlane icons live at fastlane/metadata/android/<locale>/images/icon.png
+    // (some repos drop the fastlane/ prefix). Prefer en-US, then en.
+    const iconCandidates = paths.filter((p) =>
+      /(^|\/)metadata\/[^/]+\/images\/icon\.png$/.test(p)
+    );
+    let iconPath = null;
+    for (const pref of ["/metadata/android/en-US/images/icon.png", "/metadata/en-US/images/icon.png", "/metadata/android/en/images/icon.png"]) {
+      const found = iconCandidates.find((p) => p.endsWith(pref));
+      if (found) { iconPath = found; break; }
+    }
+    if (!iconPath && iconCandidates.length) iconPath = iconCandidates[0];
+    return hit
+      ? { verified: true, marker: hit, iconPath }
+      : { verified: false, marker: null, iconPath };
   } catch {
-    return { verified: false, marker: null };
+    return { verified: false, marker: null, iconPath: null };
   }
 }
 
@@ -648,7 +675,7 @@ async function main() {
         if (r.ok) {
           const content = r.body.toLowerCase();
           if (SHIZUKU_MARKERS.some((m) => content.includes(m))) {
-            return { repo, verdict: "verified", marker: tree.marker };
+            return { repo, verdict: "verified", marker: tree.marker, iconPath: tree.iconPath };
           }
         }
       }
@@ -666,7 +693,7 @@ async function main() {
   let verified = 0;
   let rejected = 0;
   let known = 0;
-  for (const { repo, verdict, marker, store } of results) {
+  for (const { repo, verdict, marker, store, iconPath } of results) {
     if (verdict === "ignored") continue;
     if (verdict === "rejected") {
       ignored[repo.full_name.toLowerCase()] = { checked_at: nowIso };
@@ -692,6 +719,10 @@ async function main() {
     if (store) {
       applyStoreEnrichment(entry, store);
       entry.store_fetched_at = nowIso;
+    }
+    if (iconPath && !entry.icon_url) {
+      entry.icon_url = `https://raw.githubusercontent.com/${entry.full_name}/HEAD/${iconPath}`;
+      entry.icon_fetched_at = nowIso;
     }
     // A verified repo should never stay in the ignore cache — otherwise a
     // stale rejection could drop it via another source on a later run.
@@ -1010,6 +1041,38 @@ async function main() {
   }
   if (prunedCount > 0) {
     console.log(`  Pruned ${prunedCount} stale search-sourced apps (not seen in ${args.staleDays}d)`);
+  }
+
+  // ============================================================
+  // App icons via fastlane metadata
+  // ============================================================
+  // Probe the standard fastlane icon paths with raw fetches (no API cost) for
+  // repos we don't have an icon for yet. A TTL (icon_fetched_at, set even on a
+  // miss) keeps the daily work bounded: ~all repos on the first run, then a
+  // small fraction per day.
+  const iconTtlMs = args.iconTtlDays * 24 * 60 * 60 * 1000;
+  const iconCandidates = [...final.values()].filter((e) => {
+    if (!e.full_name || !e.full_name.includes("/")) return false;
+    if (e.icon_url) return false;
+    if (!e.icon_fetched_at) return true;
+    return Date.now() - new Date(e.icon_fetched_at).getTime() > iconTtlMs;
+  });
+  if (iconCandidates.length) {
+    console.log(`\nApp icons (fastlane metadata): probing ${iconCandidates.length} repos...`);
+    let iconsFound = 0;
+    await runPool(iconCandidates, CONCURRENCY, async (entry) => {
+      for (const iconPath of FASTLANE_ICON_PATHS) {
+        const r = await rawFetch(entry.full_name, iconPath);
+        if (r.ok) {
+          entry.icon_url = `https://raw.githubusercontent.com/${entry.full_name}/HEAD/${iconPath}`;
+          iconsFound++;
+          break;
+        }
+      }
+      entry.icon_fetched_at = nowIso;
+      return entry;
+    });
+    console.log(`  ${iconsFound} icons found, ${iconCandidates.length - iconsFound} repos without a fastlane icon`);
   }
 
   const sorted = [...final.values()].sort((a, b) => {
