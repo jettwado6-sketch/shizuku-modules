@@ -220,12 +220,12 @@ function render(data) {
 
   .toolbar {
     position: sticky; top: 0; z-index: 10;
-    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
-    max-width: 1200px; margin: 0 auto 28px; padding: 14px 24px;
+    display: flex; gap: 10px; align-items: center; flex-wrap: nowrap;
+    max-width: 1200px; margin: 0 auto 28px; padding: 12px 24px;
     background: rgba(11, 15, 20, .85); backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
   }
-  .search-wrap { position: relative; flex: 1 1 280px; }
+  .search-wrap { position: relative; flex: 1 1 180px; min-width: 110px; }
   .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: .5; }
   #search {
     width: 100%;
@@ -238,7 +238,8 @@ function render(data) {
   select {
     background: var(--card); color: var(--text);
     border: 1px solid var(--border); border-radius: 10px;
-    padding: 10px 12px; font-size: 14px; outline: none; cursor: pointer;
+    padding: 9px 10px; font-size: 13.5px; outline: none; cursor: pointer;
+    flex: 0 1 auto; white-space: nowrap;
   }
   .seg {
     display: inline-flex; background: var(--card);
@@ -256,9 +257,9 @@ function render(data) {
     color: #fff; box-shadow: 0 2px 10px rgba(92, 107, 192, .35);
   }
   .check {
-    display: inline-flex; align-items: center;
-    color: var(--muted); font-size: 13.5px; font-weight: 600;
-    cursor: pointer; user-select: none; padding: 10px 16px;
+    display: inline-flex; align-items: center; white-space: nowrap;
+    color: var(--muted); font-size: 13px; font-weight: 600;
+    cursor: pointer; user-select: none; padding: 9px 13px;
     background: var(--card); border: 1px solid var(--border);
     border-radius: 10px; transition: border-color .15s, color .15s, background .15s, box-shadow .15s;
   }
@@ -288,7 +289,7 @@ function render(data) {
   }
   .fav-btn:hover { color: #e5484d; transform: scale(1.15); }
   .fav-btn.on { color: #e5484d; }
-  #count { margin-left: auto; color: var(--muted); font-size: 13px; }
+  #count { margin-left: auto; color: var(--muted); font-size: 13px; white-space: nowrap; flex: 0 0 auto; }
 
   main { flex: 1; max-width: 1200px; margin: 0 auto; padding: 0 24px 60px; width: 100%; }
   .grid {
@@ -520,8 +521,8 @@ function render(data) {
   @media (max-width: 1024px) {
     .grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
   }
-  @media (max-width: 900px) {
-    .toolbar { gap: 10px; }
+  @media (max-width: 980px) {
+    .toolbar { flex-wrap: wrap; gap: 10px; }
     .search-wrap { flex: 1 1 100%; }
     .grid { gap: 14px; }
   }
