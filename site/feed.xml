@@ -3,14 +3,42 @@
   <title>Shizuku Apps Directory — New Apps</title>
   <link href="https://rushiranpise.github.io/shizuku-modules/"/>
   <link href="https://rushiranpise.github.io/shizuku-modules/feed.xml" rel="self"/>
-  <updated>2026-08-23T03:39:30.334Z</updated>
+  <updated>2026-08-23T16:13:48.492Z</updated>
   <id>https://rushiranpise.github.io/shizuku-modules/</id>
   <subtitle>Newly discovered Android apps that use Shizuku</subtitle>
+    <entry>
+      <title>J0shua-code/vScrcpy</title>
+      <link href="https://github.com/J0shua-code/vScrcpy"/>
+      <id>https://github.com/J0shua-code/vScrcpy</id>
+      <updated>2026-08-23T16:08:14.000Z</updated>
+      <summary></summary>
+    </entry>
+    <entry>
+      <title>krishna3163/awesome-android-app-repositories</title>
+      <link href="https://github.com/krishna3163/awesome-android-app-repositories"/>
+      <id>https://github.com/krishna3163/awesome-android-app-repositories</id>
+      <updated>2026-08-23T15:13:52.000Z</updated>
+      <summary>⚡ Curated &amp; continuously updated catalog of 1,600+ open-source Android apps, GitHub repositories, developer tools, AI platforms, and utilities automatically synchronized from Telegram.</summary>
+    </entry>
+    <entry>
+      <title>Ritel-T/SamsungRegionOverride</title>
+      <link href="https://github.com/Ritel-T/SamsungRegionOverride"/>
+      <id>https://github.com/Ritel-T/SamsungRegionOverride</id>
+      <updated>2026-08-23T12:46:25.000Z</updated>
+      <summary>Temporary Samsung SIM/CarrierConfig region override over Shizuku, with one-tap restore</summary>
+    </entry>
+    <entry>
+      <title>eVersor-HN/FindAnonymity</title>
+      <link href="https://github.com/eVersor-HN/FindAnonymity"/>
+      <id>https://github.com/eVersor-HN/FindAnonymity</id>
+      <updated>2026-08-23T06:53:40.000Z</updated>
+      <summary>Free, offline-first Android privacy scheduler that breaks the continuous trail your phone leaves behind: timed Wi-Fi/data/airplane/Bluetooth/location cycles, scheduled reboots and a duress panic-lock. No account, no telemetry, no network permission at all — and it shows you when &quot;off&quot; isn'</summary>
+    </entry>
     <entry>
       <title>snake99112/BD2ModDeployer</title>
       <link href="https://github.com/snake99112/BD2ModDeployer"/>
       <id>https://github.com/snake99112/BD2ModDeployer</id>
-      <updated>2026-08-23T03:36:08.000Z</updated>
+      <updated>2026-08-23T12:36:18.000Z</updated>
       <summary></summary>
     </entry>
     <entry>
@@ -126,6 +154,13 @@
       <summary>IDE for JVM development. Uses Shizuku for an embedded shell</summary>
     </entry>
     <entry>
+      <title>rushiranpise/shizuku-modules</title>
+      <link href="https://github.com/rushiranpise/shizuku-modules"/>
+      <id>https://github.com/rushiranpise/shizuku-modules</id>
+      <updated>2026-08-23T16:12:47.000Z</updated>
+      <summary></summary>
+    </entry>
+    <entry>
       <title>StardewValleyMods/CloudSync-Mobile</title>
       <link href="https://github.com/StardewValleyMods/CloudSync-Mobile"/>
       <id>https://github.com/StardewValleyMods/CloudSync-Mobile</id>
@@ -133,17 +168,10 @@
       <summary>An app that allows you to sync your Stardew Valley saves across multiple devices</summary>
     </entry>
     <entry>
-      <title>rushiranpise/shizuku-modules</title>
-      <link href="https://github.com/rushiranpise/shizuku-modules"/>
-      <id>https://github.com/rushiranpise/shizuku-modules</id>
-      <updated>2026-08-23T00:21:19.000Z</updated>
-      <summary></summary>
-    </entry>
-    <entry>
       <title>krishna3163/best-root-apps-for-android</title>
       <link href="https://github.com/krishna3163/best-root-apps-for-android"/>
       <id>https://github.com/krishna3163/best-root-apps-for-android</id>
-      <updated>2026-08-23T01:23:01.000Z</updated>
+      <updated>2026-08-23T12:41:23.000Z</updated>
       <summary>Curated directory of Android root apps, Magisk, KernelSU, LSPosed modules, system tools, privacy utilities, and no-root Shizuku apps.</summary>
     </entry>
     <entry>
@@ -187,33 +215,5 @@
       <id>https://github.com/LibChecker/LibChecker</id>
       <updated>2026-08-18T09:18:47.000Z</updated>
       <summary>An app to view libraries used in apps on your device. Uses Shizuku to determine the installation source of other apps.</summary>
-    </entry>
-    <entry>
-      <title>SuperMonster003/AutoJs6</title>
-      <link href="https://github.com/SuperMonster003/AutoJs6"/>
-      <id>https://github.com/SuperMonster003/AutoJs6</id>
-      <updated>2026-03-16T14:48:05.000Z</updated>
-      <summary>安卓平台 JavaScript 自动化工具 (Auto.js 二次开发项目)</summary>
-    </entry>
-    <entry>
-      <title>wxxsfxyzm/InstallerX-Revived</title>
-      <link href="https://github.com/wxxsfxyzm/InstallerX-Revived"/>
-      <id>https://github.com/wxxsfxyzm/InstallerX-Revived</id>
-      <updated>2026-08-22T11:51:49.000Z</updated>
-      <summary>More Expressive InstallerX !</summary>
-    </entry>
-    <entry>
-      <title>KieronQuinn/TapTap</title>
-      <link href="https://github.com/KieronQuinn/TapTap"/>
-      <id>https://github.com/KieronQuinn/TapTap</id>
-      <updated>2024-10-26T21:49:00.000Z</updated>
-      <summary>Port of the double tap on the back of the device feature from Android 12 to any Android 7.0+ device</summary>
-    </entry>
-    <entry>
-      <title>iamr0s/Dhizuku</title>
-      <link href="https://github.com/iamr0s/Dhizuku"/>
-      <id>https://github.com/iamr0s/Dhizuku</id>
-      <updated>2026-08-19T18:50:58.000Z</updated>
-      <summary>Shizuku-inspired app that allows sharing DeviceOwner permissions to third-party apps</summary>
     </entry>
 </feed>
