@@ -35,10 +35,17 @@ The site features:
 
 - **Search** across names, descriptions, owners, and topics
 - **Category filter** — Customization, Development utilities, Privacy, etc.
-- **Sorting** — updated, stars, name, release date, newest added
-- **Cards** — avatar, owner, description, topics, stars, language, badges
+- **Recency filter** — narrow to apps updated in the last 7 / 30 / 90 days
+- **Sorting** — recently updated, stars, name, latest release, newest added
+- **Cards** — real app icon (via fastlane metadata when available), owner, description, topics, stars, language, badges, and a relative "updated X ago" line
 - **Download** — links to the newest release with an APK asset
 - **Store links** — Play Store buttons from the package names declared in `shizu_store.json` / the ShizuCoreFetch store
+- **Toggles** — "Only with APK" and "Favorites" (♥ saved locally in your browser)
+- **Detail modal** — click any card for stars, license, release info, store/GitHub/homepage links and the live-rendered README
+- **Pagination** — 60 cards at a time with "Show more" and "Load all"
+- **Shareable URLs** — search/filter/sort state lives in the query string, so a filtered view can be bookmarked or shared
+- **RSS feed** — `feed.xml` (Atom) with the newest apps, linked in the footer
+- **Visitor counter** — live visit stats in the header
 - Responsive layout for phones and desktops
 
 ## Running locally
@@ -64,6 +71,19 @@ node scripts/find-repos.js [--max-pages N] [--delay MS] [--queries "q1|q2"]
 ## Contributing
 
 Know a Shizuku app that should be here? It will be picked up automatically by the daily search. Found a bug? Open an issue.
+
+Apps that carry a **`shizu_store.json`** at their root are auto-verified and enriched with real package names, categories, licenses, and store links — and apps publishing via **fastlane** automatically get their real icon shown.
+
+## Credits & acknowledgments
+
+This directory wouldn't exist without the work of others:
+
+- **[Shizuku](https://github.com/RikkaApps/Shizuku)** by RikkaApps — the app itself, and the `dev.rikka.shizuku` library every app in this list builds on.
+- **[awesome-shizuku](https://github.com/timschneeb/awesome-shizuku)** by timschneeb — the curated list of Shizuku apps (including the CLOSED_SOURCE / ARCHIVED / RISH pages) that seeds part of our list.
+- **[ShizuCoreFetch](https://github.com/elhizazi1/ShizuCoreFetch)** by elhizazi1 — its public store data rescues apps our own verification misses and enriches entries with real package names, categories, and release URLs. The `shizu_store.json` opt-in convention is theirs.
+- **App icons** — icons shown on cards come from each app's own **fastlane** metadata (`fastlane/metadata/android/.../icon.png`); they belong to their respective developers.
+- **App metadata** — fetched from the [GitHub API](https://docs.github.com/en/rest) and the awesome-shizuku / ShizuCoreFetch lists; all apps and their code belong to their respective authors.
+- **Visitor counter** — the site's visit stats are provided by [freevisitorcounters.com](https://www.freevisitorcounters.com).
 
 ## License
 
