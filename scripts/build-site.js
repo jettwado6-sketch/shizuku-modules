@@ -697,9 +697,6 @@ function render(data) {
   <span class="gen-line">Generated using <a href="https://github.com/rushiranpise/shizuku-modules/actions" target="_blank" rel="noopener"><b>GitHub Actions</b></a> on <span id="gen-date"></span></span>
   <a class="feed-link" href="feed.xml" target="_blank" rel="noopener" title="Atom feed of new apps">RSS</a>
   </div>
-  <div class="footer-inner credits">
-    Apps by their respective developers · Lists: <a href="https://github.com/timschneeb/awesome-shizuku" target="_blank" rel="noopener">awesome-shizuku</a> &amp; <a href="https://github.com/elhizazi1/ShizuCoreFetch" target="_blank" rel="noopener">ShizuCoreFetch</a> · Built on <a href="https://github.com/RikkaApps/Shizuku" target="_blank" rel="noopener">Shizuku</a> · Icons via fastlane · Visits by <a href="https://www.freevisitorcounters.com" target="_blank" rel="noopener">freevisitorcounters</a>
-  </div>
 </footer>
 
 <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-label="App details">
