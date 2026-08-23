@@ -17,13 +17,13 @@ Only **new** apps are added on each run — already-known repos are never duplic
 
 ## How apps are discovered
 
-Apps are collected via GitHub search and verified by probing for the **Shizuku dependency** in Gradle build files:
+Apps are collected from three sources:
 
-- `dev.rikka.shizuku` in `build.gradle` / `build.gradle.kts`
-- `rikka.shizuku` references in the build configuration
-- Repos with the `shizuku` topic are auto-verified
+1. **GitHub search** — verified by probing for the **Shizuku dependency** in Gradle build files (`dev.rikka.shizuku` in `build.gradle` / `build.gradle.kts`, `rikka.shizuku` references, the `shizuku` topic), with a git-tree scan and a `shizu_store.json` probe as fallbacks.
+2. **awesome-shizuku** — the curated lists (README + CLOSED_SOURCE, ARCHIVED, RISH pages).
+3. **ShizuCoreFetch store** — the ShizuCoreFetch Android store exposes its curated app list as public JSON; every entry there declares Shizuku usage, so it rescues apps our own probes miss and enriches existing entries with real package names, categories, and release URLs.
 
-Candidates that fail verification go into `data/ignored.json` so they are not re-checked on every run.
+Candidates that fail verification go into `data/ignored.json` so they are not re-checked on every run. Repos that carry an opt-in **`shizu_store.json`** at their root (the ShizuCoreFetch convention) are auto-verified and enriched with `package_name`, `category`, `license`, homepage, and screenshots.
 
 Set `GITHUB_TOKEN` for higher rate limits and full tree-scan verification.
 
@@ -36,6 +36,7 @@ The site features:
 - **Sorting** — updated, stars, name, release date, newest added
 - **Cards** — avatar, owner, description, topics, stars, language, badges
 - **Download** — links to the newest release with an APK asset
+- **Store links** — Play Store buttons from the package names declared in `shizu_store.json` / the ShizuCoreFetch store
 - Responsive layout for phones and desktops
 
 ## Running locally
@@ -55,6 +56,7 @@ node scripts/build-site.js
 ```
 node scripts/find-repos.js [--max-pages N] [--delay MS] [--queries "q1|q2"]
                             [--ignore-ttl-days N] [--release-ttl-days N]
+                            [--no-awesome] [--no-store]
 ```
 
 ## Contributing

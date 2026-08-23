@@ -508,6 +508,7 @@ function render(data) {
 
 
   .badge.awesome { background: rgba(139, 92, 246, .15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, .35); }
+  .badge.store { background: rgba(56, 189, 248, .14); color: #38bdf8; border: 1px solid rgba(56, 189, 248, .35); }
 
   /* ---------- responsive ---------- */
   @media (max-width: 1024px) {
@@ -1016,6 +1017,13 @@ function render(data) {
       b.title = "Listed in awesome-shizuku";
       badges.append(b);
     }
+    if (repo.source === "shizucorefetch") {
+      const b = document.createElement("span");
+      b.className = "badge store";
+      b.textContent = "ShizuCoreFetch";
+      b.title = "Curated by the ShizuCoreFetch store";
+      badges.append(b);
+    }
     if (badges.childElementCount) foot.append(badges);
 
     const updated = document.createElement("span");
@@ -1060,6 +1068,21 @@ function render(data) {
       lic.textContent = repo.license;
       lic.title = "License";
       dlLinks.push(lic);
+    }
+    // Opt-in store declaration (shizu_store.json / ShizuCoreFetch store) gives
+    // us the real package name — surface a store link when the homepage isn't
+    // already a Play/F-Droid page.
+    const storePkg = repo.package_name;
+    const homeIsStore = /play\.google\.com|f-droid\.org/i.test(repo.homepage || "");
+    if (storePkg && !homeIsStore) {
+      const store = document.createElement("a");
+      store.className = "release-chip ghost store";
+      store.href = "https://play.google.com/store/apps/details?id=" + encodeURIComponent(storePkg);
+      store.target = "_blank";
+      store.rel = "noopener";
+      store.textContent = "Play Store";
+      store.title = "Package: " + storePkg;
+      dlLinks.push(store);
     }
     if (dlLinks.length) {
       dlRow = document.createElement("div");
@@ -1222,6 +1245,13 @@ function render(data) {
       l.title = "License";
       meta.append(l);
     }
+    if (repo.package_name) {
+      const p = document.createElement("span");
+      p.className = "m-chip";
+      p.textContent = repo.package_name;
+      p.title = "Package name";
+      meta.append(p);
+    }
     if (release.tag) {
       const v = document.createElement("span");
       v.className = "m-chip";
@@ -1251,6 +1281,11 @@ function render(data) {
     else if (release.html_url) mk(release.html_url, "View release");
     if (repo.html_url) mk(repo.html_url, isStore ? "Open store page" : "View on GitHub", true);
     if (repo.homepage && repo.homepage !== repo.html_url) mk(repo.homepage, "Homepage", true);
+    const storePkg = repo.package_name;
+    const homeIsStore = /play\.google\.com|f-droid\.org/i.test(repo.homepage || "");
+    if (storePkg && !homeIsStore) {
+      mk("https://play.google.com/store/apps/details?id=" + encodeURIComponent(storePkg), "Play Store", true);
+    }
     modalBody.append(actions);
 
     // README — fetched live from raw.githubusercontent (CORS-open).

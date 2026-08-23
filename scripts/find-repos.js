@@ -9,10 +9,12 @@
  *                               [--ignore-ttl-days N] [--release-ttl-days N]
  *                               [--stale-days N] [--no-awesome]
  *
- * Two discovery sources:
+ * Three discovery sources:
  *   1. GitHub search + Shizuku dependency verification (big queries are
  *      auto-sliced by star ranges so nothing past the 1000-result cap is missed)
  *   2. awesome-shizuku curated lists (main README + CLOSED_SOURCE, ARCHIVED, RISH pages)
+ *   3. ShizuCoreFetch store list (rescues apps our probes skip + enriches with
+ *      package names, categories and release URLs)
  *
  * Set GITHUB_TOKEN for higher rate limits.
  */
@@ -80,6 +82,15 @@ const SHIZUKU_MARKERS = [
   "rikka.shizuku.runner",
 ];
 
+// ---- ShizuCoreFetch store source ----
+// ShizuCoreFetch (elhizazi1/ShizuCoreFetch) runs a curated Shizuku app store
+// behind a public JSON endpoint. Every entry there declares Shizuku usage
+// (via the opt-in shizu_store.json convention or the awesome-shizuku list), so
+// it doubles as a rescue source for apps our own probes miss, and enriches
+// existing entries with real package names, categories and release URLs.
+const SHIZUCOREFETCH_STORE_URL = "https://corefetch.siwane.xyz/?action=list";
+const SHIZU_STORE_FILE = "shizu_store.json";
+
 function parseArgs(argv) {
   const args = {
     queries: DEFAULT_QUERIES,
@@ -89,6 +100,7 @@ function parseArgs(argv) {
     releaseTtlDays: DEFAULT_RELEASE_TTL_DAYS,
     staleDays: DEFAULT_STALE_DAYS,
     noAwesome: false,
+    noStore: false,
   };
   for (let i = 2; i < argv.length; i++) {
     switch (argv[i]) {
@@ -112,6 +124,9 @@ function parseArgs(argv) {
         break;
       case "--no-awesome":
         args.noAwesome = true;
+        break;
+      case "--no-store":
+        args.noStore = true;
         break;
       default:
         console.warn(`Unknown argument: ${argv[i]}`);
@@ -293,6 +308,63 @@ async function verifyShizukuUsage(fullName) {
     }
   }
   return { verified: false, marker: null };
+}
+
+// Fetch a repo's opt-in shizu_store.json (the ShizuCoreFetch store convention).
+async function fetchShizuStoreJson(fullName) {
+  const r = await rawFetch(fullName, SHIZU_STORE_FILE);
+  if (!r.ok) return null;
+  try {
+    return { data: JSON.parse(r.body) };
+  } catch {
+    return null;
+  }
+}
+
+// A shizu_store.json counts as a Shizuku declaration when it explicitly says
+// requires_shizuku, or mentions shizuku anywhere — the file itself is the
+// ShizuCoreFetch store's opt-in format, so its presence is a strong signal.
+function storeDeclaresShizuku(data) {
+  if (!data || typeof data !== "object") return false;
+  if (data.requires_shizuku === true || data.requiresShizuku === true) return true;
+  return JSON.stringify(data).toLowerCase().includes("shizuku");
+}
+
+// Merge opt-in store fields into a repo entry: package name, category,
+// license, homepage, description, screenshots and a direct download URL.
+function applyStoreEnrichment(entry, data) {
+  if (!data || typeof data !== "object") return;
+  const pkg = data.package_name || data.packageName || data.package;
+  if (pkg && !entry.package_name) entry.package_name = pkg;
+  const cat = data.category;
+  if (cat && (!entry.category || entry.category === "Miscellaneous")) entry.category = cat;
+  const lic = data.license;
+  if (lic && !entry.license) entry.license = lic;
+  const home = data.app_website || data.appWebsite || data.homepage || data.website;
+  if (home && !entry.homepage) entry.homepage = home;
+  const desc = data.short_description || data.shortDescription || data.description;
+  if (desc && !entry.description) entry.description = desc;
+  if (Array.isArray(data.screenshots) && data.screenshots.length && !entry.screenshots) {
+    entry.screenshots = data.screenshots.filter((s) => typeof s === "string");
+  }
+  const dl = data.download_url || data.downloadUrl || data.apk_url || data.apkUrl;
+  if (dl && !entry.store_download_url) entry.store_download_url = dl;
+}
+
+// Fetch the ShizuCoreFetch store's curated app list (declared Shizuku apps).
+async function fetchShizuCoreFetchStore() {
+  try {
+    const res = await fetch(SHIZUCOREFETCH_STORE_URL, { signal: AbortSignal.timeout(20000) });
+    if (!res.ok) {
+      console.warn(`  Failed to fetch ShizuCoreFetch store: HTTP ${res.status}`);
+      return [];
+    }
+    const arr = await res.json();
+    return Array.isArray(arr) ? arr : [];
+  } catch (err) {
+    console.warn(`  Failed to fetch ShizuCoreFetch store: ${err.message}`);
+    return [];
+  }
 }
 
 function hasShizukuTopic(repo) {
@@ -581,13 +653,20 @@ async function main() {
         }
       }
     }
+    // Last resort: the repo may opt in via a shizu_store.json at its root even
+    // when no gradle marker is present (e.g. apps built without the shizuku
+    // dependency, like Shizuku itself). One cheap raw fetch, no API cost.
+    const store = await fetchShizuStoreJson(repo.full_name);
+    if (store && storeDeclaresShizuku(store.data)) {
+      return { repo, verdict: "verified", marker: SHIZU_STORE_FILE, store: store.data };
+    }
     return { repo, verdict: "rejected" };
   });
 
   let verified = 0;
   let rejected = 0;
   let known = 0;
-  for (const { repo, verdict, marker } of results) {
+  for (const { repo, verdict, marker, store } of results) {
     if (verdict === "ignored") continue;
     if (verdict === "rejected") {
       ignored[repo.full_name.toLowerCase()] = { checked_at: nowIso };
@@ -610,6 +689,13 @@ async function main() {
     entry.last_seen = repo._existing ? (prev && prev.last_seen) || nowIso : nowIso;
     if (prev && prev.release) entry.release = prev.release;
     if (prev && prev.release_fetched_at) entry.release_fetched_at = prev.release_fetched_at;
+    if (store) {
+      applyStoreEnrichment(entry, store);
+      entry.store_fetched_at = nowIso;
+    }
+    // A verified repo should never stay in the ignore cache — otherwise a
+    // stale rejection could drop it via another source on a later run.
+    delete ignored[entry.full_name.toLowerCase()];
     if (verdict === "known") known++;
     final.set(entry.full_name.toLowerCase(), entry);
     verified++;
@@ -647,12 +733,11 @@ async function main() {
             continue;
           }
 
-          // Check ignore cache
-          const ign = ignored[key];
-          if (ign && ign.checked_at && Date.now() - new Date(ign.checked_at).getTime() < ignoreTtlMs) {
-            awesomeSkipped++;
-            continue;
-          }
+          // A repo in the curated awesome list is the source of truth — never
+          // skip it because an older search-based rejection is still cached.
+          // (Same principle as the pruning logic below, which always keeps
+          // awesome-listed apps.)
+          delete ignored[key];
 
           // Preserve added_at and cached release info from a previous run so
           // existing apps are never re-marked as "new" and releases aren't
@@ -776,6 +861,135 @@ async function main() {
       }
     }
     console.log(`  awesome-shizuku total: ${awesomeTotal} added, ${awesomeNew} new, ${awesomeSkipped} already in list`);
+  }
+
+  // ============================================================
+  // Source 3: ShizuCoreFetch store list
+  // ============================================================
+  // ShizuCoreFetch curates a Shizuku app store behind a public JSON endpoint.
+  // Every entry there declares Shizuku usage (opt-in shizu_store.json or the
+  // awesome-shizuku list), so this rescues apps our own verification skipped
+  // and enriches existing entries with real package names/categories/releases.
+  if (!args.noStore) {
+    console.log(`\nSource 3: ShizuCoreFetch store list...`);
+    const storeApps = await fetchShizuCoreFetchStore();
+    console.log(`  ${storeApps.length} store entries`);
+    let storeRescued = 0;
+    let storeEnriched = 0;
+    let storeAdded = 0;
+
+    for (const app of storeApps) {
+      const fullName = (app.id || "").trim();
+      if (!fullName.includes("/")) continue;
+      const key = fullName.toLowerCase();
+      const storeEntry = {
+        package_name: app.packageName || "",
+        category: app.category || "",
+        homepage: app.appWebsite || "",
+        description: app.description || "",
+        release: app.apkUrl
+          ? {
+              tag: app.versionTag || "",
+              name: app.versionTag || "",
+              published_at: app.releasedAt || "",
+              html_url: app.versionTag
+                ? `https://github.com/${fullName}/releases/tag/${encodeURIComponent(app.versionTag)}`
+                : app.downloadUrl || `https://github.com/${fullName}`,
+              apk_url: app.apkUrl,
+              prerelease: false,
+            }
+          : null,
+      };
+
+      if (final.has(key)) {
+        // Already listed — enrich with the store's authoritative metadata.
+        const e = final.get(key);
+        if (storeEntry.package_name && !e.package_name) e.package_name = storeEntry.package_name;
+        if (storeEntry.category && (!e.category || e.category === "Miscellaneous")) e.category = storeEntry.category;
+        if (storeEntry.homepage && !e.homepage) e.homepage = storeEntry.homepage;
+        if (storeEntry.description && !e.description) e.description = storeEntry.description;
+        if (storeEntry.release && !e.release) {
+          e.release = storeEntry.release;
+          e.release_fetched_at = nowIso;
+        } else if (
+          storeEntry.release &&
+          e.release &&
+          storeEntry.release.html_url.includes("/releases/") &&
+          !(e.release.html_url || "").includes("/releases/")
+        ) {
+          // Self-heal a store-seeded release whose html_url is a bare repo URL.
+          e.release.html_url = storeEntry.release.html_url;
+        }
+        e.store_fetched_at = nowIso;
+        storeEnriched++;
+      } else if (ignored[key]) {
+        // Our crawler rejected this repo before, but the store declares it a
+        // Shizuku app — rescue it.
+        delete ignored[key];
+        const entry = {
+          full_name: fullName,
+          html_url: `https://github.com/${fullName}`,
+          description: storeEntry.description || app.developer || "",
+          homepage: storeEntry.homepage,
+          stargazers_count: typeof app.stars === "number" ? app.stars : 0,
+          forks_count: 0,
+          language: "",
+          topics: [],
+          archived: false,
+          owner: { login: fullName.split("/")[0], avatar_url: "" },
+          created_at: "",
+          updated_at: app.updated_at || "",
+          pushed_at: app.updated_at || "",
+          verified: true,
+          marker: "shizucorefetch",
+          category: storeEntry.category || "Miscellaneous",
+          source: "shizucorefetch",
+          package_name: storeEntry.package_name,
+          added_at: nowIso,
+          last_seen: nowIso,
+          store_fetched_at: nowIso,
+        };
+        if (storeEntry.release) {
+          entry.release = storeEntry.release;
+          entry.release_fetched_at = nowIso;
+        }
+        final.set(key, entry);
+        console.log(`  RESCUED ${fullName} (${storeEntry.category || "?"})`);
+        storeRescued++;
+      } else {
+        // Brand-new to us — add it directly (their curation is the verification).
+        const entry = {
+          full_name: fullName,
+          html_url: `https://github.com/${fullName}`,
+          description: storeEntry.description || app.developer || "",
+          homepage: storeEntry.homepage,
+          stargazers_count: typeof app.stars === "number" ? app.stars : 0,
+          forks_count: 0,
+          language: "",
+          topics: [],
+          archived: false,
+          owner: { login: fullName.split("/")[0], avatar_url: "" },
+          created_at: "",
+          updated_at: app.updated_at || "",
+          pushed_at: app.updated_at || "",
+          verified: true,
+          marker: "shizucorefetch",
+          category: storeEntry.category || "Miscellaneous",
+          source: "shizucorefetch",
+          package_name: storeEntry.package_name,
+          added_at: nowIso,
+          last_seen: nowIso,
+          store_fetched_at: nowIso,
+        };
+        if (storeEntry.release) {
+          entry.release = storeEntry.release;
+          entry.release_fetched_at = nowIso;
+        }
+        final.set(key, entry);
+        storeAdded++;
+      }
+    }
+    console.log(`  ShizuCoreFetch store: ${storeEnriched} enriched, ${storeRescued} rescued, ${storeAdded} added`);
   }
 
   // ============================================================

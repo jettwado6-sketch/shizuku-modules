@@ -3,9 +3,114 @@
   <title>Shizuku Apps Directory — New Apps</title>
   <link href="https://rushiranpise.github.io/shizuku-modules/"/>
   <link href="https://rushiranpise.github.io/shizuku-modules/feed.xml" rel="self"/>
-  <updated>2026-08-22T16:25:11.516Z</updated>
+  <updated>2026-08-23T00:04:07.555Z</updated>
   <id>https://rushiranpise.github.io/shizuku-modules/</id>
   <subtitle>Newly discovered Android apps that use Shizuku</subtitle>
+    <entry>
+      <title>feravolt/FDE.AI-docs</title>
+      <link href="https://github.com/feravolt/FDE.AI-docs"/>
+      <id>https://github.com/feravolt/FDE.AI-docs</id>
+      <updated>2026-08-19T16:52:18.000Z</updated>
+      <summary>Various FDE.AI related texts</summary>
+    </entry>
+    <entry>
+      <title>henrichg/PhoneProfilesPlus</title>
+      <link href="https://github.com/henrichg/PhoneProfilesPlus"/>
+      <id>https://github.com/henrichg/PhoneProfilesPlus</id>
+      <updated>2025-09-29T17:05:45.000Z</updated>
+      <summary>Allows automatic or one-click configuration of your device for specific life situations</summary>
+    </entry>
+    <entry>
+      <title>palincat/gama</title>
+      <link href="https://github.com/palincat/gama"/>
+      <id>https://github.com/palincat/gama</id>
+      <updated>2026-07-26T15:09:45.000Z</updated>
+      <summary>Can switch between OpenGL and Vulkan renderers by setting the `debug.hwui.renderer` system property</summary>
+    </entry>
+    <entry>
+      <title>molihuan/hlbmerge_flutter</title>
+      <link href="https://github.com/molihuan/hlbmerge_flutter"/>
+      <id>https://github.com/molihuan/hlbmerge_flutter</id>
+      <updated>2026-07-27T16:03:21.000Z</updated>
+      <summary>Merge and export BiliBili cache files into MP4, supports mobile and computer client</summary>
+    </entry>
+    <entry>
+      <title>rayshift/translatefgo</title>
+      <link href="https://github.com/rayshift/translatefgo"/>
+      <id>https://github.com/rayshift/translatefgo</id>
+      <updated>2026-04-25T19:42:50.000Z</updated>
+      <summary>Fate/Grand Order game translation project</summary>
+    </entry>
+    <entry>
+      <title>YasserNull/setbox</title>
+      <link href="https://github.com/YasserNull/setbox"/>
+      <id>https://github.com/YasserNull/setbox</id>
+      <updated>2025-08-26T21:23:33.000Z</updated>
+      <summary>Modifies Android system settings through community-developed modules</summary>
+    </entry>
+    <entry>
+      <title>rayshift/nextgenfs</title>
+      <link href="https://github.com/rayshift/nextgenfs"/>
+      <id>https://github.com/rayshift/nextgenfs</id>
+      <updated>2024-02-19T00:16:34.000Z</updated>
+      <summary>Shizuku compatible android/data access from Xamarin - AIDL library</summary>
+    </entry>
+    <entry>
+      <title>turin-dev/rish-mcp</title>
+      <link href="https://github.com/turin-dev/rish-mcp"/>
+      <id>https://github.com/turin-dev/rish-mcp</id>
+      <updated>2026-08-18T15:15:21.000Z</updated>
+      <summary>Control an Android device's shell from AI clients through MCP - outbound-only, no root or Shizuku.</summary>
+    </entry>
+    <entry>
+      <title>RikkaApps/Shizuku</title>
+      <link href="https://github.com/RikkaApps/Shizuku"/>
+      <id>https://github.com/RikkaApps/Shizuku</id>
+      <updated>2025-06-18T04:21:02.000Z</updated>
+      <summary>Using system APIs directly with adb/root privileges from normal apps through a Java process started with app_process.</summary>
+    </entry>
+    <entry>
+      <title>omnimind-ai/OmniBot</title>
+      <link href="https://github.com/omnimind-ai/OmniBot"/>
+      <id>https://github.com/omnimind-ai/OmniBot</id>
+      <updated>2026-08-22T19:19:40.000Z</updated>
+      <summary>On-device AI agent with terminal, web browsing, device control, and system integration</summary>
+    </entry>
+    <entry>
+      <title>Kimjio/umamusume-localify-android</title>
+      <link href="https://github.com/Kimjio/umamusume-localify-android"/>
+      <id>https://github.com/Kimjio/umamusume-localify-android</id>
+      <updated>2026-08-21T16:04:18.000Z</updated>
+      <summary>Localization module for Umamusume via Zygisk with Shizuku integration</summary>
+    </entry>
+    <entry>
+      <title>2005selene2005-a11y/susu-phone-agent</title>
+      <link href="https://github.com/2005selene2005-a11y/susu-phone-agent"/>
+      <id>https://github.com/2005selene2005-a11y/susu-phone-agent</id>
+      <updated>2026-08-22T19:48:02.000Z</updated>
+      <summary>Android device bridge for Claude Code via MCP + Shizuku. No root, no model polling.</summary>
+    </entry>
+    <entry>
+      <title>harbor</title>
+      <link href="https://f-droid.org/packages/com.monstera.harbor/"/>
+      <id>https://f-droid.org/packages/com.monstera.harbor/</id>
+      <updated>2026-08-22T23:57:18.412Z</updated>
+      <summary>Work-profile manager with optional Shizuku tools for automation</summary>
+    </entry>
+    <entry>
+      <title>ObtainX</title>
+      <link href="https://f-droid.org/packages/dev.bikram.obtainx/"/>
+      <id>https://f-droid.org/packages/dev.bikram.obtainx/</id>
+      <updated>2026-08-22T23:57:18.412Z</updated>
+      <summary>Obtainium fork with Material 3 UI redesign</summary>
+    </entry>
+    <entry>
+      <title>Smart Dock</title>
+      <link href="https://f-droid.org/packages/cu.axel.smartdock/"/>
+      <id>https://f-droid.org/packages/cu.axel.smartdock/</id>
+      <updated>2026-08-22T23:57:18.412Z</updated>
+      <summary>Transform your phone into a desktop environment with taskbar, recent apps, and start menu</summary>
+    </entry>
     <entry>
       <title>aload0/Cosmic-IDE</title>
       <link href="https://github.com/aload0/Cosmic-IDE"/>
@@ -24,21 +129,14 @@
       <title>rushiranpise/shizuku-modules</title>
       <link href="https://github.com/rushiranpise/shizuku-modules"/>
       <id>https://github.com/rushiranpise/shizuku-modules</id>
-      <updated>2026-08-22T16:24:20.000Z</updated>
+      <updated>2026-08-22T16:25:14.000Z</updated>
       <summary></summary>
-    </entry>
-    <entry>
-      <title>turin-dev/rish-mcp</title>
-      <link href="https://github.com/turin-dev/rish-mcp"/>
-      <id>https://github.com/turin-dev/rish-mcp</id>
-      <updated>2026-08-18T15:15:21.000Z</updated>
-      <summary>Exposes an Android device's Shizuku shell to AIs as an MCP `run_shell` tool over an outbound WebSocket relay — run shell commands from Claude or any MCP client with no VPN, ADB, or sshd</summary>
     </entry>
     <entry>
       <title>krishna3163/best-root-apps-for-android</title>
       <link href="https://github.com/krishna3163/best-root-apps-for-android"/>
       <id>https://github.com/krishna3163/best-root-apps-for-android</id>
-      <updated>2026-08-22T12:54:51.000Z</updated>
+      <updated>2026-08-22T18:31:54.000Z</updated>
       <summary>Curated directory of Android root apps, Magisk, KernelSU, LSPosed modules, system tools, privacy utilities, and no-root Shizuku apps.</summary>
     </entry>
     <entry>
@@ -117,103 +215,5 @@
       <id>https://github.com/JingMatrix/LSPatch</id>
       <updated>2026-08-22T08:17:55.000Z</updated>
       <summary>A non-root Xposed framework extending from LSPosed</summary>
-    </entry>
-    <entry>
-      <title>KieronQuinn/Smartspacer</title>
-      <link href="https://github.com/KieronQuinn/Smartspacer"/>
-      <id>https://github.com/KieronQuinn/Smartspacer</id>
-      <updated>2026-08-08T17:29:12.000Z</updated>
-      <summary>Smartspacer is a customisable widget for Android, but with a difference: It can upgrade the built in At a Glance on Pixels - without root!</summary>
-    </entry>
-    <entry>
-      <title>zacharee/InstallWithOptions</title>
-      <link href="https://github.com/zacharee/InstallWithOptions"/>
-      <id>https://github.com/zacharee/InstallWithOptions</id>
-      <updated>2026-08-11T18:11:38.000Z</updated>
-      <summary>Simple-ish app using Shizuku to install APKs on-device with advanced options</summary>
-    </entry>
-    <entry>
-      <title>RookieEnough/Orion-Store</title>
-      <link href="https://github.com/RookieEnough/Orion-Store"/>
-      <id>https://github.com/RookieEnough/Orion-Store</id>
-      <updated>2026-08-17T17:01:05.000Z</updated>
-      <summary>The ultimate home for modded apps. OrionStore offers instant access to YouTube Morphe, YT Music Morphe, and essential open-source tools without the clutter. No servers, no tracking, just a beautiful, modern gateway to the apps you love.</summary>
-    </entry>
-    <entry>
-      <title>wgtunnel/android</title>
-      <link href="https://github.com/wgtunnel/android"/>
-      <id>https://github.com/wgtunnel/android</id>
-      <updated>2026-08-22T09:48:42.000Z</updated>
-      <summary>A FOSS Android client for WireGuard and AmneziaWG with auto-tunneling.</summary>
-    </entry>
-    <entry>
-      <title>shmykelsa/AAAD</title>
-      <link href="https://github.com/shmykelsa/AAAD"/>
-      <id>https://github.com/shmykelsa/AAAD</id>
-      <updated>2026-06-17T13:40:50.000Z</updated>
-      <summary>Downloads popular Android Auto 3rd party apps and installs on Android Auto</summary>
-    </entry>
-    <entry>
-      <title>KieronQuinn/AmbientMusicMod</title>
-      <link href="https://github.com/KieronQuinn/AmbientMusicMod"/>
-      <id>https://github.com/KieronQuinn/AmbientMusicMod</id>
-      <updated>2024-09-07T22:45:39.000Z</updated>
-      <summary>Port of Now Playing from Pixels to other Android devices</summary>
-    </entry>
-    <entry>
-      <title>RikkaApps/Shizuku-API</title>
-      <link href="https://github.com/RikkaApps/Shizuku-API"/>
-      <id>https://github.com/RikkaApps/Shizuku-API</id>
-      <updated>2025-05-29T19:12:40.000Z</updated>
-      <summary>The API and the developer guide for Shizuku and Sui.</summary>
-    </entry>
-    <entry>
-      <title>legendsayantan/ShizuTools</title>
-      <link href="https://github.com/legendsayantan/ShizuTools"/>
-      <id>https://github.com/legendsayantan/ShizuTools</id>
-      <updated>2026-07-28T16:28:50.000Z</updated>
-      <summary>Contains many tools to control android system via shizuku.</summary>
-    </entry>
-    <entry>
-      <title>Mahmud0808/ColorBlendr</title>
-      <link href="https://github.com/Mahmud0808/ColorBlendr"/>
-      <id>https://github.com/Mahmud0808/ColorBlendr</id>
-      <updated>2026-08-17T07:52:52.000Z</updated>
-      <summary>An Android app for customizing Material You colors on devices with Android 12+. It lets you tweak accent colors, background saturation, and more for a personalized look.</summary>
-    </entry>
-    <entry>
-      <title>VegaBobo/DSU-Sideloader</title>
-      <link href="https://github.com/VegaBobo/DSU-Sideloader"/>
-      <id>https://github.com/VegaBobo/DSU-Sideloader</id>
-      <updated>2024-03-13T18:18:38.000Z</updated>
-      <summary>A simple app made to help users easily install GSIs via DSU's Android feature.</summary>
-    </entry>
-    <entry>
-      <title>DP-Hridayan/aShellYou</title>
-      <link href="https://github.com/DP-Hridayan/aShellYou"/>
-      <id>https://github.com/DP-Hridayan/aShellYou</id>
-      <updated>2026-08-22T13:54:32.000Z</updated>
-      <summary>A material you designed app for your ADB needs</summary>
-    </entry>
-    <entry>
-      <title>AhmetCanArslan/ShizuWall</title>
-      <link href="https://github.com/AhmetCanArslan/ShizuWall"/>
-      <id>https://github.com/AhmetCanArslan/ShizuWall</id>
-      <updated>2026-08-13T19:00:00.000Z</updated>
-      <summary>Lightweight, no vpn firewall solution for Android 11+</summary>
-    </entry>
-    <entry>
-      <title>MMRLApp/MMRL</title>
-      <link href="https://github.com/MMRLApp/MMRL"/>
-      <id>https://github.com/MMRLApp/MMRL</id>
-      <updated>2026-08-18T18:43:16.000Z</updated>
-      <summary>Manage your Magisk module repository</summary>
-    </entry>
-    <entry>
-      <title>vvb2060/KeyAttestation</title>
-      <link href="https://github.com/vvb2060/KeyAttestation"/>
-      <id>https://github.com/vvb2060/KeyAttestation</id>
-      <updated>2025-09-30T14:57:21.000Z</updated>
-      <summary>Supports generating, saving, loading, parsing and verifying Android key and ID attestation data.</summary>
     </entry>
 </feed>
