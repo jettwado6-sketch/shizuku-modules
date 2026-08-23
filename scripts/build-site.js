@@ -653,11 +653,6 @@ function render(data) {
   <select id="category-filter" aria-label="Category filter">
     <option value="all">All categories</option>
   </select>
-  <select id="source-filter" aria-label="Source filter">
-    <option value="all">All sources</option>
-    <option value="search">GitHub search</option>
-    <option value="awesome">awesome-shizuku</option>
-  </select>
   <select id="recency-filter" aria-label="Recency filter">
     <option value="all">Updated: Any time</option>
     <option value="7">Updated: Last 7 days</option>
@@ -726,7 +721,6 @@ function render(data) {
     search: document.getElementById("search"),
     sort: document.getElementById("sort"),
     category: document.getElementById("category-filter"),
-    source: document.getElementById("source-filter"),
     recency: document.getElementById("recency-filter"),
     apk: document.getElementById("apk-only"),
     favOnly: document.getElementById("fav-only"),
@@ -748,14 +742,11 @@ function render(data) {
     el.category.appendChild(opt);
   });
 
-  // Shareable URL state: ?q=...&cat=...&src=...&sort=...&rec=7&apk=1&fav=1
+  // Shareable URL state: ?q=...&cat=...&sort=...&rec=7&apk=1&fav=1
   const params = new URLSearchParams(location.search);
   const applyParams = () => {
     if (params.has("q")) el.search.value = params.get("q");
     if (params.has("cat")) el.category.value = params.get("cat");
-    if (params.has("src") && [...el.source.options].some((o) => o.value === params.get("src"))) {
-      el.source.value = params.get("src");
-    }
     if (params.has("sort") && [...el.sort.options].some((o) => o.value === params.get("sort"))) {
       el.sort.value = params.get("sort");
     }
@@ -1331,10 +1322,7 @@ function render(data) {
     let list = repos.filter((r) => {
 
       const catFilter = el.category ? el.category.value : "all";
-      const srcFilter = el.source ? el.source.value : "all";
       if (catFilter !== "all" && (r.category || "Miscellaneous") !== catFilter) return false;
-      if (srcFilter === "awesome" && !(r.source && r.source.startsWith("awesome"))) return false;
-      if (srcFilter === "search" && r.source && r.source.startsWith("awesome")) return false;
       if (el.apk && el.apk.checked && !(r.release && r.release.apk_url)) return false;
       if (el.favOnly && el.favOnly.checked && !favorites.has(r.full_name)) return false;
       const recDays = el.recency ? parseInt(el.recency.value, 10) : 0;
@@ -1401,7 +1389,6 @@ function render(data) {
     const p = new URLSearchParams();
     if (el.search.value) p.set("q", el.search.value);
     if (el.category.value !== "all") p.set("cat", el.category.value);
-    if (el.source.value !== "all") p.set("src", el.source.value);
     if (el.sort.value !== "updated") p.set("sort", el.sort.value);
     if (el.recency.value !== "all") p.set("rec", el.recency.value);
     if (el.apk.checked) p.set("apk", "1");
@@ -1414,7 +1401,6 @@ function render(data) {
   el.search.addEventListener("input", filterChanged);
   el.sort.addEventListener("change", filterChanged);
   el.category.addEventListener("change", filterChanged);
-  el.source.addEventListener("change", filterChanged);
   el.recency.addEventListener("change", filterChanged);
   el.apk.addEventListener("change", filterChanged);
   el.favOnly.addEventListener("change", filterChanged);
