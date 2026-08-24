@@ -3,22 +3,36 @@
   <title>Shizuku Apps Directory — New Apps</title>
   <link href="https://rushiranpise.github.io/shizuku-modules/"/>
   <link href="https://rushiranpise.github.io/shizuku-modules/feed.xml" rel="self"/>
-  <updated>2026-08-23T16:13:48.492Z</updated>
+  <updated>2026-08-24T03:42:48.913Z</updated>
   <id>https://rushiranpise.github.io/shizuku-modules/</id>
   <subtitle>Newly discovered Android apps that use Shizuku</subtitle>
+    <entry>
+      <title>sachinmandawi/CleanBar</title>
+      <link href="https://github.com/sachinmandawi/CleanBar"/>
+      <id>https://github.com/sachinmandawi/CleanBar</id>
+      <updated>2026-08-23T21:30:45.000Z</updated>
+      <summary>1-Tap Status Bar &amp; System Icon Hider for Android powered by Shizuku. Hide clock, battery, and icons with zero root.</summary>
+    </entry>
+    <entry>
+      <title>maicongoe/AA-Cluster</title>
+      <link href="https://github.com/maicongoe/AA-Cluster"/>
+      <id>https://github.com/maicongoe/AA-Cluster</id>
+      <updated>2026-08-23T18:12:45.000Z</updated>
+      <summary>Aplicativo Android dedicado ao AA Rich Cluster para multimídia Haval/GWM, com Frida e bind mount.</summary>
+    </entry>
+    <entry>
+      <title>krishna3163/awesome-android-app-repositories</title>
+      <link href="https://github.com/krishna3163/awesome-android-app-repositories"/>
+      <id>https://github.com/krishna3163/awesome-android-app-repositories</id>
+      <updated>2026-08-24T02:18:20.000Z</updated>
+      <summary>⚡ Curated &amp; continuously updated catalog of 1,600+ open-source Android apps, GitHub repositories, developer tools, AI platforms, and utilities automatically synchronized from Telegram.</summary>
+    </entry>
     <entry>
       <title>J0shua-code/vScrcpy</title>
       <link href="https://github.com/J0shua-code/vScrcpy"/>
       <id>https://github.com/J0shua-code/vScrcpy</id>
       <updated>2026-08-23T16:08:14.000Z</updated>
       <summary></summary>
-    </entry>
-    <entry>
-      <title>krishna3163/awesome-android-app-repositories</title>
-      <link href="https://github.com/krishna3163/awesome-android-app-repositories"/>
-      <id>https://github.com/krishna3163/awesome-android-app-repositories</id>
-      <updated>2026-08-23T15:13:52.000Z</updated>
-      <summary>⚡ Curated &amp; continuously updated catalog of 1,600+ open-source Android apps, GitHub repositories, developer tools, AI platforms, and utilities automatically synchronized from Telegram.</summary>
     </entry>
     <entry>
       <title>Ritel-T/SamsungRegionOverride</title>
@@ -31,7 +45,7 @@
       <title>eVersor-HN/FindAnonymity</title>
       <link href="https://github.com/eVersor-HN/FindAnonymity"/>
       <id>https://github.com/eVersor-HN/FindAnonymity</id>
-      <updated>2026-08-23T06:53:40.000Z</updated>
+      <updated>2026-08-23T19:36:04.000Z</updated>
       <summary>Free, offline-first Android privacy scheduler that breaks the continuous trail your phone leaves behind: timed Wi-Fi/data/airplane/Bluetooth/location cycles, scheduled reboots and a duress panic-lock. No account, no telemetry, no network permission at all — and it shows you when &quot;off&quot; isn'</summary>
     </entry>
     <entry>
@@ -59,7 +73,7 @@
       <title>palincat/gama</title>
       <link href="https://github.com/palincat/gama"/>
       <id>https://github.com/palincat/gama</id>
-      <updated>2026-07-26T15:09:45.000Z</updated>
+      <updated>2026-08-23T23:28:07.000Z</updated>
       <summary>Graphics API Manager for Android (GAMA)</summary>
     </entry>
     <entry>
@@ -157,7 +171,7 @@
       <title>rushiranpise/shizuku-modules</title>
       <link href="https://github.com/rushiranpise/shizuku-modules"/>
       <id>https://github.com/rushiranpise/shizuku-modules</id>
-      <updated>2026-08-23T16:12:47.000Z</updated>
+      <updated>2026-08-23T16:13:51.000Z</updated>
       <summary></summary>
     </entry>
     <entry>
@@ -171,7 +185,7 @@
       <title>krishna3163/best-root-apps-for-android</title>
       <link href="https://github.com/krishna3163/best-root-apps-for-android"/>
       <id>https://github.com/krishna3163/best-root-apps-for-android</id>
-      <updated>2026-08-23T12:41:23.000Z</updated>
+      <updated>2026-08-24T01:20:07.000Z</updated>
       <summary>Curated directory of Android root apps, Magisk, KernelSU, LSPosed modules, system tools, privacy utilities, and no-root Shizuku apps.</summary>
     </entry>
     <entry>
@@ -201,19 +215,5 @@
       <id>https://github.com/aniyomiorg/aniyomi</id>
       <updated>2026-08-19T14:51:58.000Z</updated>
       <summary>Tachiyomi fork with anime support and plugin management using Shizuku.</summary>
-    </entry>
-    <entry>
-      <title>AAswordman/Operit</title>
-      <link href="https://github.com/AAswordman/Operit"/>
-      <id>https://github.com/AAswordman/Operit</id>
-      <updated>2026-08-22T10:42:53.000Z</updated>
-      <summary>The most powerful AI agent and AI chat software on Android/Operit是一款Android上能力最为强大、发展最久的AI Agent</summary>
-    </entry>
-    <entry>
-      <title>LibChecker/LibChecker</title>
-      <link href="https://github.com/LibChecker/LibChecker"/>
-      <id>https://github.com/LibChecker/LibChecker</id>
-      <updated>2026-08-18T09:18:47.000Z</updated>
-      <summary>An app to view libraries used in apps on your device. Uses Shizuku to determine the installation source of other apps.</summary>
     </entry>
 </feed>
